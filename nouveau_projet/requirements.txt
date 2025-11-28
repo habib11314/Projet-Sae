@@ -1,0 +1,11 @@
+Flask==2.3.3
+pandas==2.1.1
+plotly==5.17.0
+weasyprint==59.0
+python-dotenv==1.0.0
+Werkzeug==2.3.7
+numpy==1.25.2
+openpyxl==3.1.2
+PyPDF2==3.0.1
+pdfplumber==0.10.2
+reportlab==4.0.5

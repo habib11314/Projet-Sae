@@ -1,0 +1,264 @@
+{% extends 'layout.html' %}
+
+{% block title %}Analyser vos données - EnergyPulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-zone {
+        border: 3px dashed #dee2e6;
+        border-radius: 15px;
+        padding: 3rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .upload-zone:hover {
+        border-color: var(--primary-color);
+        background: rgba(30, 136, 229, 0.05);
+    }
+    
+    .upload-zone.dragover {
+        border-color: var(--primary-color);
+        background: rgba(30, 136, 229, 0.1);
+    }
+    
+    .upload-icon {
+        font-size: 4rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .file-types {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .file-type {
+        text-align: center;
+        padding: 1.2rem;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .file-type:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    .file-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .progress-container {
+        margin-top: 2rem;
+        display: none;
+    }
+    
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="content-section">
+                <h2 class="section-title text-center mb-4">Analyser vos données énergétiques</h2>
+                
+                <div class="mb-4 text-center">
+                    <p class="lead">Importez vos données de consommation énergétique pour obtenir une analyse détaillée et des recommandations personnalisées.</p>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                    <div class="upload-zone" id="dropZone">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3 class="mb-3">Glissez-déposez votre fichier ici</h3>
+                        <p class="text-muted mb-4">ou</p>
+                        <input type="file" name="file" id="file" class="d-none" accept=".csv,.xlsx,.json">
+                        <button type="button" class="btn btn-primary px-4 py-2" id="browseButton">
+                            <i class="fas fa-folder-open me-2"></i> Parcourir
+                        </button>
+                        
+                        <div class="progress-container" id="progressContainer">
+                            <div class="progress">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 0%" id="progressBar"></div>
+                            </div>
+                            <div class="text-center mt-2" id="progressText">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary px-4 py-2" id="uploadButton">
+                            <i class="fas fa-bolt me-2"></i> Lancer l'analyse
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="file-types mt-5">
+                    <div class="file-type">
+                        <div class="file-icon">
+                            <i class="fas fa-file-csv"></i>
+                        </div>
+                        <h5>.CSV</h5>
+                        <p class="mb-0 text-muted small">Fichiers CSV</p>
+                    </div>
+                    <div class="file-type">
+                        <div class="file-icon">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <h5>.XLSX</h5>
+                        <p class="mb-0 text-muted small">Excel</p>
+                    </div>
+                    <div class="file-type">
+                        <div class="file-icon">
+                            <i class="fas fa-file-code"></i>
+                        </div>
+                        <h5>.JSON</h5>
+                        <p class="mb-0 text-muted small">JSON</p>
+                    </div>
+                </div>
+                
+                <div class="mt-5 mb-3 text-center">
+                    <h4>Formats pris en charge</h4>
+                    <p class="text-muted mb-4">Notre système est compatible avec les formats de données des principaux acteurs du secteur énergétique</p>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-chart-line me-2 text-primary"></i> GRD-F
+                                </h5>
+                                <p class="card-text small">Courbes de charge d'Enedis, EDF et autres fournisseurs.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-file-invoice-dollar me-2 text-primary"></i> Factures
+                                </h5>
+                                <p class="card-text small">Factures normalisées des grands fournisseurs d'énergie.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-leaf me-2 text-primary"></i> ADEME/ISO
+                                </h5>
+                                <p class="card-text small">Formats ADEME et ISO 50001 pour le management énergétique.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('formats') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-info-circle me-2"></i> Détails des formats supportés
+                    </a>
+                    <a href="{{ url_for('sample_data') }}" class="btn btn-outline-secondary ms-2">
+                        <i class="fas fa-vial me-2"></i> Essayer avec des données test
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('file');
+        const browseButton = document.getElementById('browseButton');
+        const uploadForm = document.getElementById('uploadForm');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        // Ouvrir le sélecteur de fichier lorsqu'on clique sur le bouton Parcourir
+        browseButton.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Afficher le nom du fichier sélectionné
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                dropZone.querySelector('h3').innerText = fileName;
+                // Simuler une analyse du fichier
+                showProgress();
+            }
+        });
+        
+        // Gérer le drag & drop
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', function() {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                const fileName = fileInput.files[0].name;
+                dropZone.querySelector('h3').innerText = fileName;
+                // Simuler une analyse du fichier
+                showProgress();
+            }
+        });
+        
+        // Simuler une progression
+        function showProgress() {
+            progressContainer.style.display = 'block';
+            let progress = 0;
+            
+            const interval = setInterval(function() {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                progressText.innerText = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+        
+        // Soumettre le formulaire avec animation
+        uploadForm.addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('file');
+            
+            if (fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Veuillez sélectionner un fichier à analyser.');
+                return false;
+            }
+            
+            showProgress();
+        });
+    });
+</script>
+{% endblock %}

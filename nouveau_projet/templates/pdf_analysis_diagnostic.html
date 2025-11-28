@@ -1,0 +1,324 @@
+{% extends 'layout.html' %}
+
+{% block title %}Diagnostic et Amélioration PDF - EnergyInsight{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="content-section">
+        <h1 class="section-title text-center">Diagnostic et Amélioration des Extractions PDF</h1>
+        
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-10">
+                <div class="card bg-dark text-light border-light">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-tools"></i> Outils de Diagnostic PDF
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                    {% for message in messages %}
+                                        {{ message }}
+                                    {% endfor %}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="mb-4">Diagnostiquer une facture PDF</h4>
+                                <form method="POST" action="{{ url_for('diagnose_pdf') }}" enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="pdfFile" class="form-label">Sélectionnez un fichier PDF</label>
+                                        <input class="form-control" type="file" name="pdf_file" id="pdfFile" accept=".pdf" required>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="compare_methods" id="compareMethods" value="1" checked>
+                                            <label class="form-check-label" for="compareMethods">
+                                                Comparer les méthodes d'extraction
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-stethoscope"></i> Diagnostiquer le PDF
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h4 class="mb-4">Actions disponibles</h4>
+                                <div class="d-grid gap-2">
+                                    <a href="{{ url_for('analyze_sample_pdf_improved') }}" class="btn btn-success">
+                                        <i class="fas fa-vial"></i> Tester la facture exemple avec l'analyseur amélioré
+                                    </a>
+                                    
+                                    <a href="{{ url_for('export_facture_test_data') }}" class="btn btn-info">
+                                        <i class="fas fa-file-download"></i> Exporter les données de la facture test
+                                    </a>
+                                    
+                                    <a href="{{ url_for('pdf_extraction_help') }}" class="btn btn-secondary">
+                                        <i class="fas fa-question-circle"></i> Guide de dépannage PDF
+                                    </a>
+                                </div>
+                                
+                                <div class="alert alert-info mt-4">
+                                    <i class="fas fa-info-circle"></i> L'analyseur amélioré utilise plusieurs techniques:
+                                    <ul class="mb-0 mt-2">
+                                        <li>Extraction multi-méthodes</li>
+                                        <li>Détection avancée des patterns</li>
+                                        <li>Analyse des tableaux PDF</li>
+                                        <li>Tentatives multiples avec différents modes</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if comparison %}
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="card bg-dark text-light border-light">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar"></i> Comparaison des méthodes d'extraction
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4><i class="fas fa-file-pdf"></i> Extracteur standard</h4>
+                                <div class="alert {% if comparison.has_error.standard %}alert-warning{% else %}alert-success{% endif %}">
+                                    {% if comparison.has_error.standard %}
+                                        <i class="fas fa-exclamation-triangle"></i> Erreur: {{ comparison.standard.error }}
+                                    {% else %}
+                                        <i class="fas fa-check-circle"></i> Extraction réussie ({{ comparison.fields_found.standard }} champs trouvés)
+                                    {% endif %}
+                                </div>
+                                
+                                <table class="table table-dark">
+                                    <tbody>
+                                        <tr>
+                                            <th>Fournisseur</th>
+                                            <td>{{ comparison.standard.provider }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Consommation</th>
+                                            <td>{{ comparison.standard.consumption_kwh|default('-', true) }} kWh</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant</th>
+                                            <td>{{ comparison.standard.amount|default('-', true) }} €</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Période</th>
+                                            <td>
+                                                {% if comparison.standard.period_start and comparison.standard.period_end %}
+                                                    Du {{ comparison.standard.period_start }} au {{ comparison.standard.period_end }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Référence client</th>
+                                            <td>{{ comparison.standard.client_ref|default('-', true) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>N° compteur</th>
+                                            <td>{{ comparison.standard.meter_number|default('-', true) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h4><i class="fas fa-rocket"></i> Extracteur amélioré</h4>
+                                <div class="alert {% if comparison.has_error.improved %}alert-warning{% else %}alert-success{% endif %}">
+                                    {% if comparison.has_error.improved %}
+                                        <i class="fas fa-exclamation-triangle"></i> Erreur: {{ comparison.improved.error }}
+                                    {% else %}
+                                        <i class="fas fa-check-circle"></i> Extraction réussie ({{ comparison.fields_found.improved }} champs trouvés)
+                                        {% if comparison.improved.global_confidence %}
+                                            - Confiance: {{ comparison.improved.global_confidence }}
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                
+                                <table class="table table-dark">
+                                    <tbody>
+                                        <tr>
+                                            <th>Fournisseur</th>
+                                            <td>{{ comparison.improved.provider }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Consommation</th>
+                                            <td>{{ comparison.improved.consumption_kwh|default('-', true) }} kWh</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant</th>
+                                            <td>{{ comparison.improved.amount|default('-', true) }} €</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Période</th>
+                                            <td>
+                                                {% if comparison.improved.period_start and comparison.improved.period_end %}
+                                                    Du {{ comparison.improved.period_start }} au {{ comparison.improved.period_end }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Référence client</th>
+                                            <td>{{ comparison.improved.client_ref|default('-', true) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>N° compteur</th>
+                                            <td>{{ comparison.improved.meter_number|default('-', true) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('export_improved_pdf_data', pdf_id=pdf_id) }}" class="btn btn-primary">
+                                <i class="fas fa-download"></i> Exporter les données (CSV)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result %}
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-12">
+                <div class="card bg-dark text-light border-light">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-receipt"></i> Résultats de l'analyse améliorée
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Informations de la facture</h4>
+                                <table class="table table-dark">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">Fournisseur</th>
+                                            <td>{{ result.provider }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Consommation</th>
+                                            <td>{{ result.consumption_kwh|default('-', true) }} kWh</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Montant</th>
+                                            <td>{{ result.amount|default('-', true) }} €</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Période de facturation</th>
+                                            <td>
+                                                {% if result.period_start and result.period_end %}
+                                                    Du {{ result.period_start }} au {{ result.period_end }}
+                                                {% else %}
+                                                    Non spécifiée
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Référence client</th>
+                                            <td>{{ result.client_ref|default('-', true) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Numéro de compteur</th>
+                                            <td>{{ result.meter_number|default('-', true) }}</td>
+                                        </tr>
+                                        {% if result.global_confidence %}
+                                        <tr>
+                                            <th scope="row">Indice de confiance</th>
+                                            <td>{{ result.global_confidence }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                {% if result.error %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> {{ result.error }}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Bouton de diagnostic -->
+                                {% if debug_text %}
+                                <button class="btn btn-sm btn-outline-secondary mb-3" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#debugInfo">
+                                    <i class="fas fa-bug"></i> Afficher les informations de diagnostic
+                                </button>
+                                <div class="collapse" id="debugInfo">
+                                    <div class="debug-info">
+                                        <h6>Informations de diagnostic:</h6>
+                                        <pre>{{ debug_text|default('Aucune information', true) }}</pre>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="card bg-dark border-light mt-3">
+                                    <div class="card-header">
+                                        Actions disponibles
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ url_for('export_pdf_data', pdf_id=pdf_id) }}" class="btn btn-outline-light">
+                                                <i class="fas fa-download"></i> Télécharger les données (CSV)
+                                            </a>
+                                            <a href="{{ url_for('analyze_pdf_advanced', pdf_id=pdf_id, mode='aggressive') }}" class="btn btn-outline-info">
+                                                <i class="fas fa-bolt"></i> Réessayer en mode agressif
+                                            </a>
+                                            <a href="{{ url_for('pdf_extraction_help') }}" class="btn btn-outline-secondary">
+                                                <i class="fas fa-question-circle"></i> Guide de dépannage
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .debug-info {
+        font-family: monospace;
+        background-color: #1a1a1a;
+        color: #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 15px;
+    }
+    
+    .debug-info pre {
+        margin: 0;
+        white-space: pre-wrap;
+    }
+</style>
+{% endblock %}

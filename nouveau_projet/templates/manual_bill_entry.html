@@ -1,0 +1,495 @@
+{% extends 'layout_manual.html' %}
+
+{% block title %}Saisie manuelle de facture - StatEnergie{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bill-form {
+        background-color: rgba(40, 44, 52, 0.8);
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 25px;
+        margin-top: 20px;
+    }
+    
+    .form-group label {
+        color: #ddd;
+        font-weight: 500;
+        font-size: 1.4em; /* Taille de police encore plus grande pour une meilleure lisibilité */
+        margin-bottom: 10px; /* Plus d'espace sous les labels */
+    }
+    
+    .form-control {
+        background-color: #1f2227;
+        border: 1px solid #444;
+        color: #ddd;
+        padding: 14px 15px; /* Padding augmenté pour des champs plus grands */
+        font-size: 1.3em; /* Taille de police plus grande pour une meilleure lisibilité */
+        height: auto;
+        margin-bottom: 10px; /* Espacement entre les champs */
+        border-radius: 8px; /* Coins arrondis */
+    }
+    
+    .form-control:focus {
+        background-color: #2b2f38;
+        border-color: #2E86AB;
+        color: #fff;
+        box-shadow: 0 0 0 0.2rem rgba(46, 134, 171, 0.25);
+    }
+    
+    .form-section {
+        border-bottom: 1px solid #444;
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        color: #2E86AB;
+        margin-bottom: 20px;
+        font-size: 1.5em; /* Plus grand pour meilleure lisibilité */
+    }
+    
+    .field-help {
+        color: #aaa;
+        font-size: 1.0em; /* Plus grand pour meilleure lisibilité */
+        margin-top: 5px;
+        font-style: italic;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+    }
+    
+    .btn-lg {
+        font-size: 1.3em;
+        padding: 12px 25px;
+    }
+    
+    /* Style pour la section d'aide */
+    .help-panel {
+        background-color: rgba(46, 134, 171, 0.1);
+        border-left: 4px solid #2E86AB;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 0 4px 4px 0;
+        font-size: 1.1em;
+    }
+    
+    /* Meilleur contraste et accessibilité */
+    .form-check-label {
+        font-size: 1.1em;
+        margin-left: 10px;
+        color: #ddd;
+    }
+    
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+    }
+    
+    /* Séparer visuellement les groupes de champs */
+    .mb-4 {
+        margin-bottom: 2rem !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="content-section">
+        <h1 class="section-title text-center">Saisie manuelle de données de facture</h1>
+        
+        <!-- Panel d'aide avec mode guidé -->
+        <div class="help-panel">
+            <h5><i class="fas fa-info-circle"></i> Aide à la saisie</h5>
+            <p>Ce formulaire vous permet d'entrer manuellement les données d'une facture d'énergie. 
+               Les champs obligatoires sont marqués d'un astérisque (*). 
+               Pour plus de précision dans l'analyse, remplissez autant de champs que possible.</p>
+            <p>Vous trouverez ces informations sur votre facture papier ou électronique, généralement dans les sections "Résumé de facturation" ou "Détail de consommation".</p>
+            <div class="mt-3">
+                <button id="toggleGuidedMode" class="btn btn-primary btn-lg">
+                    <i class="fas fa-map-signs"></i> Mode guidé pas à pas
+                </button>
+                <button id="increaseFontSize" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-text-height"></i> Augmenter la taille du texte
+                </button>
+            </div>
+        </div>
+        
+        <!-- Panneau de guidage pas à pas (caché par défaut) -->
+        <div id="guidedModePanel" class="mt-4 mb-4 p-4 border border-info rounded" style="display:none; background-color: rgba(0,123,255,0.1);">
+            <h4 class="text-info"><i class="fas fa-directions"></i> Assistant de saisie</h4>
+            <div id="stepContent" class="p-3 bg-dark rounded mt-3">
+                <h5 class="step-title">Étape 1: Informations générales</h5>
+                <p class="step-description">Commencez par saisir les informations de base comme le fournisseur et la date de la facture. Vous trouverez généralement ces informations en haut de votre facture.</p>
+                <img class="img-fluid rounded mb-3" src="{{ url_for('static', filename='img/facture_exemple_1.jpg') }}" alt="Exemple facture - informations générales" onerror="this.style.display='none'">
+            </div>
+            <div class="mt-3 text-center">
+                <button id="prevStep" class="btn btn-outline-info btn-lg me-2" disabled><i class="fas fa-arrow-left"></i> Précédent</button>
+                <span id="stepIndicator" class="px-3 py-2 bg-dark rounded text-light">Étape 1/5</span>
+                <button id="nextStep" class="btn btn-info btn-lg ms-2">Suivant <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10"> <!-- Légèrement plus large pour un meilleur confort -->
+                <div class="bill-form">
+                    <form method="POST" action="{{ url_for('manual_bill_entry') }}">
+                        <div class="form-section">
+                            <h4 class="section-title">Informations générales</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="provider" class="required-field">Fournisseur</label>
+                                    <select class="form-control" id="provider" name="provider">
+                                        <option value="EDF">EDF</option>
+                                        <option value="ENGIE">ENGIE</option>
+                                        <option value="TotalEnergies">TotalEnergies</option>
+                                        <option value="Direct Energie">Direct Energie</option>
+                                        <option value="Planète OUI">Planète OUI</option>
+                                        <option value="Enercoop">Enercoop</option>
+                                        <option value="Ekwateur">Ekwateur</option>
+                                        <option value="OHM Energie">OHM Energie</option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="bill_date" class="required-field">Date de la facture</label>
+                                    <input type="date" class="form-control" id="bill_date" name="bill_date" required>
+                                    <div class="field-help">Date d'émission figurant sur la facture</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="client_ref">Référence client</label>
+                                    <input type="text" class="form-control" id="client_ref" name="client_ref" placeholder="Ex: 1234567890">
+                                    <div class="field-help">Votre numéro client ou identifiant</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="meter_number">Numéro de compteur / PDL / PRM</label>
+                                    <input type="text" class="form-control" id="meter_number" name="meter_number" placeholder="Ex: 12345678901234">
+                                    <div class="field-help">Numéro à 14 chiffres pour l'électricité (PDL) ou le gaz (PRM)</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="address">Adresse de facturation</label>
+                                    <input type="text" class="form-control" id="address" name="address" placeholder="Ex: 123 Rue de l'Énergie, 75000 Paris">
+                                    <div class="field-help">Adresse du lieu de consommation</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4 class="section-title">Type d'énergie et contrat</h4>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label>Type d'énergie</label>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="radio" name="energy_type" id="electricity" value="electricity" checked>
+                                        <label class="form-check-label" for="electricity">
+                                            Électricité
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="energy_type" id="gas" value="gas">
+                                        <label class="form-check-label" for="gas">
+                                            Gaz
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="energy_type" id="both" value="both">
+                                        <label class="form-check-label" for="both">
+                                            Les deux
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="contract_type">Type d'abonnement</label>
+                                    <select class="form-control" id="contract_type" name="contract_type">
+                                        <option value="base">Tarif Base</option>
+                                        <option value="hc_hp">Heures Pleines / Heures Creuses</option>
+                                        <option value="tempo">Tarif Tempo</option>
+                                        <option value="effacement">Effacement Jour de Pointe</option>
+                                        <option value="flex">Tarif Flexible</option>
+                                        <option value="other">Autre offre</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="power_kva">Puissance souscrite (kVA)</label>
+                                    <input type="number" step="0.1" class="form-control" id="power_kva" name="power_kva" placeholder="Ex: 9.0">
+                                    <div class="field-help">Pour l'électricité, 6kVA, 9kVA, etc.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="subscription_price">Montant de l'abonnement (€/mois)</label>
+                                    <input type="number" step="0.01" class="form-control" id="subscription_price" name="subscription_price" placeholder="Ex: 15.60">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4 class="section-title">Consommation et montant</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="consumption_kwh" class="required-field">Consommation totale (kWh)</label>
+                                    <input type="number" step="0.01" class="form-control" id="consumption_kwh" name="consumption_kwh" placeholder="Ex: 1250.50" required min="0">
+                                    <div class="field-help">Total en kilowattheures consommés sur la période</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="amount" class="required-field">Montant total TTC (€)</label>
+                                    <input type="number" step="0.01" class="form-control" id="amount" name="amount" placeholder="Ex: 150.25" required min="0">
+                                    <div class="field-help">Montant total à payer, taxes comprises</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="consumption_hp">Consommation Heures Pleines (kWh)</label>
+                                    <input type="number" step="0.01" class="form-control" id="consumption_hp" name="consumption_hp" placeholder="Ex: 850.75" min="0">
+                                    <div class="field-help">Pour contrat heures pleines/creuses</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="consumption_hc">Consommation Heures Creuses (kWh)</label>
+                                    <input type="number" step="0.01" class="form-control" id="consumption_hc" name="consumption_hc" placeholder="Ex: 399.75" min="0">
+                                    <div class="field-help">Pour contrat heures pleines/creuses</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="price_kwh_hp">Prix du kWh en Heures Pleines (€)</label>
+                                    <input type="number" step="0.0001" class="form-control" id="price_kwh_hp" name="price_kwh_hp" placeholder="Ex: 0.1489" min="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="price_kwh_hc">Prix du kWh en Heures Creuses (€)</label>
+                                    <input type="number" step="0.0001" class="form-control" id="price_kwh_hc" name="price_kwh_hc" placeholder="Ex: 0.1089" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4 class="section-title">Période de facturation</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="period_start" class="required-field">Date de début</label>
+                                    <input type="date" class="form-control" id="period_start" name="period_start" required>
+                                    <div class="field-help">Début de la période facturée</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="period_end" class="required-field">Date de fin</label>
+                                    <input type="date" class="form-control" id="period_end" name="period_end" required>
+                                    <div class="field-help">Fin de la période facturée</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="billing_type">Type de facturation</label>
+                                    <select class="form-control" id="billing_type" name="billing_type">
+                                        <option value="real">Facture sur consommation réelle</option>
+                                        <option value="estimated">Facture estimée</option>
+                                        <option value="regularization">Régularisation</option>
+                                    </select>
+                                    <div class="field-help">Généralement indiqué sur votre facture (réel, estimé, régularisation)</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4 class="section-title">Taxes et suppléments</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="tax_cspe">CSPE/TICGN (€)</label>
+                                    <input type="number" step="0.01" class="form-control" id="tax_cspe" name="tax_cspe" placeholder="Ex: 22.50">
+                                    <div class="field-help">Contribution au Service Public de l'Électricité ou Taxe sur le Gaz</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="tax_cta">CTA (€)</label>
+                                    <input type="number" step="0.01" class="form-control" id="tax_cta" name="tax_cta" placeholder="Ex: 5.45">
+                                    <div class="field-help">Contribution Tarifaire d'Acheminement</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="tax_tva">Montant total TVA (€)</label>
+                                    <input type="number" step="0.01" class="form-control" id="tax_tva" name="tax_tva" placeholder="Ex: 28.75">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="amount_ht">Montant HT (€)</label>
+                                    <input type="number" step="0.01" class="form-control" id="amount_ht" name="amount_ht" placeholder="Ex: 121.50">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4 class="section-title">Notes supplémentaires</h4>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="comments">Commentaires ou informations additionnelles</label>
+                                    <textarea class="form-control" id="comments" name="comments" rows="3" placeholder="Ex: Consommation inhabituelle due à un hiver rigoureux..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> Enregistrer et analyser les données
+                            </button>
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-light btn-lg ms-3">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mode guidé pas à pas
+        const toggleGuidedMode = document.getElementById('toggleGuidedMode');
+        const guidedModePanel = document.getElementById('guidedModePanel');
+        const prevStep = document.getElementById('prevStep');
+        const nextStep = document.getElementById('nextStep');
+        const stepContent = document.getElementById('stepContent');
+        const stepIndicator = document.getElementById('stepIndicator');
+        
+        // Augmenter la taille de la police
+        const increaseFontSize = document.getElementById('increaseFontSize');
+        let fontSizeLevel = 0;
+        const maxFontSizeLevel = 3;
+        
+        // Contenu des étapes
+        const steps = [
+            {
+                title: "Étape 1: Informations générales",
+                description: "Commencez par saisir les informations de base comme le fournisseur et la date de la facture. Vous trouverez généralement ces informations en haut de votre facture."
+            },
+            {
+                title: "Étape 2: Type d'énergie et contrat",
+                description: "Choisissez le type d'énergie (électricité ou gaz) et le type d'abonnement. Pour l'électricité, la puissance souscrite est généralement indiquée en kVA (6kVA, 9kVA, etc.)."
+            },
+            {
+                title: "Étape 3: Consommation et montant",
+                description: "Saisissez votre consommation totale en kWh et le montant total TTC. Si vous avez un contrat heures pleines/heures creuses, vous pouvez également saisir ces détails séparément."
+            },
+            {
+                title: "Étape 4: Période de facturation",
+                description: "Indiquez la période couverte par la facture, généralement visible en première page sous forme de 'Période du... au...'."
+            },
+            {
+                title: "Étape 5: Taxes et suppléments",
+                description: "Si vous disposez des détails, vous pouvez saisir les différentes taxes (CSPE, CTA, TVA). Ces informations sont généralement en dernière page de votre facture."
+            }
+        ];
+        
+        // État actuel
+        let currentStep = 0;
+        
+        // Fonction pour mettre à jour le contenu de l'étape
+        function updateStepContent() {
+            const step = steps[currentStep];
+            stepContent.innerHTML = `
+                <h5 class="step-title">${step.title}</h5>
+                <p class="step-description">${step.description}</p>
+            `;
+            stepIndicator.textContent = `Étape ${currentStep + 1}/${steps.length}`;
+            
+            prevStep.disabled = currentStep === 0;
+            nextStep.disabled = currentStep === steps.length - 1;
+            
+            // Faire défiler jusqu'à la section correspondante
+            const sections = document.querySelectorAll('.form-section');
+            if (sections[currentStep]) {
+                sections[currentStep].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Événements pour la navigation dans les étapes
+        toggleGuidedMode.addEventListener('click', function() {
+            if (guidedModePanel.style.display === 'none') {
+                guidedModePanel.style.display = 'block';
+                currentStep = 0;
+                updateStepContent();
+                this.innerHTML = '<i class="fas fa-times"></i> Fermer le mode guidé';
+                this.classList.replace('btn-primary', 'btn-danger');
+            } else {
+                guidedModePanel.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-map-signs"></i> Mode guidé pas à pas';
+                this.classList.replace('btn-danger', 'btn-primary');
+            }
+        });
+        
+        prevStep.addEventListener('click', function() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateStepContent();
+            }
+        });
+        
+        nextStep.addEventListener('click', function() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateStepContent();
+            }
+        });
+        
+        // Augmenter la taille de police
+        increaseFontSize.addEventListener('click', function() {
+            fontSizeLevel = (fontSizeLevel + 1) % (maxFontSizeLevel + 1);
+            
+            const rootSize = 16; // Taille de base en pixels
+            const formControls = document.querySelectorAll('.form-control');
+            const labels = document.querySelectorAll('label');
+            const helpTexts = document.querySelectorAll('.field-help');
+            
+            // Ajuster la taille selon le niveau
+            switch (fontSizeLevel) {
+                case 0: // Normal
+                    document.body.style.fontSize = '1.1rem';
+                    formControls.forEach(el => el.style.fontSize = '1.3em');
+                    labels.forEach(el => el.style.fontSize = '1.4em');
+                    helpTexts.forEach(el => el.style.fontSize = '1.0em');
+                    break;
+                case 1: // Grand
+                    document.body.style.fontSize = '1.2rem';
+                    formControls.forEach(el => el.style.fontSize = '1.4em');
+                    labels.forEach(el => el.style.fontSize = '1.6em');
+                    helpTexts.forEach(el => el.style.fontSize = '1.2em');
+                    break;
+                case 2: // Très grand
+                    document.body.style.fontSize = '1.3rem';
+                    formControls.forEach(el => el.style.fontSize = '1.5em');
+                    labels.forEach(el => el.style.fontSize = '1.8em');
+                    helpTexts.forEach(el => el.style.fontSize = '1.3em');
+                    break;
+                case 3: // Énorme
+                    document.body.style.fontSize = '1.5rem';
+                    formControls.forEach(el => el.style.fontSize = '1.6em');
+                    labels.forEach(el => el.style.fontSize = '2.0em');
+                    helpTexts.forEach(el => el.style.fontSize = '1.4em');
+                    break;
+            }
+            
+            // Mettre à jour le texte du bouton
+            this.innerHTML = `<i class="fas fa-text-height"></i> Taille: ${['Normal', 'Grand', 'Très grand', 'Énorme'][fontSizeLevel]}`;
+        });
+    });
+</script>
+{% endblock %}

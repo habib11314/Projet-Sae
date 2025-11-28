@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergyInsight Business - Analyse Énergétique Stratégique</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2E7D32;
+            --secondary-color: #1976D2;
+            --accent-color: #FF6F00;
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --danger-color: #F44336;
+            --info-color: #2196F3;
+            --light-bg: #F8F9FA;
+            --dark-text: #212529;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-text);
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: none;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .zone-card {
+            background: linear-gradient(135deg, var(--info-color), var(--secondary-color));
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .recommendation-card {
+            background: linear-gradient(135deg, var(--success-color), var(--primary-color));
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .recommendation-card h5 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .recommendation-card ul {
+            margin-bottom: 0;
+        }
+
+        .recommendation-card li {
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(25, 118, 210, 0.1));
+            color: var(--info-color);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(46, 125, 50, 0.1));
+            color: var(--success-color);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 111, 0, 0.1));
+            color: var(--warning-color);
+        }
+
+        .chart-container {
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .efficiency-score {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 2rem;
+            border-radius: 50%;
+            margin: 0 auto;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .score-excellent {
+            background: linear-gradient(135deg, var(--success-color), var(--primary-color));
+        }
+
+        .score-good {
+            background: linear-gradient(135deg, var(--info-color), var(--secondary-color));
+        }
+
+        .score-average {
+            background: linear-gradient(135deg, var(--warning-color), var(--accent-color));
+        }
+
+        .score-poor {
+            background: linear-gradient(135deg, var(--danger-color), #C62828);
+        }
+
+        .action-plan-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .economic-projection {
+            background: linear-gradient(135deg, var(--accent-color), #E65100);
+            color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px);
+        }
+
+        .table-custom {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .table-custom th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .table-custom td {
+            padding: 1rem;
+            border: none;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .badge-custom {
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 2rem 0;
+            }
+            
+            .metric-value {
+                font-size: 2rem;
+            }
+            
+            .efficiency-score {
+                width: 120px;
+                height: 120px;
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="/">
+                <i class="bi bi-lightning-charge-fill me-2"></i>
+                EnergyInsight Business
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/upload">Nouvelle Analyse</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3">Analyse Énergétique Stratégique</h1>
+                    <p class="lead mb-4">Pilotage énergétique avancé avec projections économiques et recommandations stratégiques</p>
+                    <div class="row">
+                        <div class="col-md-3 col-6">
+                            <div class="text-center">
+                                <h3 class="fw-bold">{{ analysis.file_info.total_records }}</h3>
+                                <small>Relevés analysés</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-center">
+                                <h3 class="fw-bold">{{ analysis.file_info.period_covered or "N/A" }}</h3>
+                                <small>Période couverte</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-center">
+                                <h3 class="fw-bold">{{ "%.1f"|format(analysis.file_info.completeness) }}%</h3>
+                                <small>Qualité des données</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-center">
+                                <h3 class="fw-bold">{{ analysis.efficiency_score.score }}/100</h3>
+                                <small>Score d'efficacité</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div class="efficiency-score {{ 'score-excellent' if analysis.efficiency_score.score >= 80 else 'score-good' if analysis.efficiency_score.score >= 60 else 'score-average' if analysis.efficiency_score.score >= 40 else 'score-poor' }}">
+                        {{ analysis.efficiency_score.score }}
+                    </div>
+                    <p class="mt-3">{{ analysis.efficiency_score.category }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Métriques Clés -->
+            <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-primary">{{ "{:,.0f}".format(analysis.consumption_analysis.total) }}</div>
+                    <div class="metric-label">kWh Consommés</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-success">{{ "{:,.0f}".format(analysis.economic_analysis.total_cost) }}€</div>
+                    <div class="metric-label">Coût Total</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-warning">{{ "{:,.0f}".format(analysis.economic_projections.annual_savings_potential) }}€</div>
+                    <div class="metric-label">Économies Potentielles</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-info">{{ "{:.1f}".format(analysis.economic_projections.roi_months) }}</div>
+                    <div class="metric-label">ROI (mois)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyse HP/HC -->
+        {% if analysis.hp_hc_analysis %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-clock me-2"></i>Analyse Heures Pleines / Heures Creuses</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <div id="hp-hc-chart"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-custom alert-info">
+                                    <h6><i class="bi bi-info-circle me-2"></i>Répartition HP/HC</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Heures Pleines</strong><br>
+                                            {{ "{:,.0f}".format(analysis.hp_hc_analysis.total_hp) }} kWh<br>
+                                            <small>{{ "{:.1f}".format(analysis.hp_hc_analysis.hp_percentage) }}% du total</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Heures Creuses</strong><br>
+                                            {{ "{:,.0f}".format(analysis.hp_hc_analysis.total_hc) }} kWh<br>
+                                            <small>{{ "{:.1f}".format(analysis.hp_hc_analysis.hc_percentage) }}% du total</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="alert alert-custom alert-success">
+                                    <h6><i class="bi bi-currency-euro me-2"></i>Optimisation Tarifaire</h6>
+                                    <p>Économies potentielles par transfert de charge : <strong>{{ "{:,.0f}".format(analysis.hp_hc_analysis.optimization_potential) }}€/an</strong></p>
+                                    <p><small>{{ analysis.hp_hc_analysis.optimization_recommendation }}</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Analyse par Zone -->
+        {% if analysis.zone_analysis %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Analyse par Zone</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for zone_name, zone_data in analysis.zone_analysis.zones.items() %}
+                            <div class="col-md-6 mb-3">
+                                <div class="zone-card">
+                                    <h6 class="mb-3">{{ zone_name }}</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>{{ "{:,.0f}".format(zone_data.total_consumption) }}</strong><br>
+                                            <small>kWh consommés</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>{{ "{:,.0f}".format(zone_data.total_cost) }}€</strong><br>
+                                            <small>Coût total</small>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" style="width: {{ zone_data.percentage }}%"></div>
+                                        </div>
+                                        <small>{{ "{:.1f}".format(zone_data.percentage) }}% de la consommation totale</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Graphiques de Consommation -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Évolution de la Consommation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <div id="consumption-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Répartition Mensuelle</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <div id="monthly-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Détection de Pics -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Détection de Pics de Consommation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="chart-container">
+                                    <div id="peaks-chart"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-custom alert-warning">
+                                    <h6><i class="bi bi-lightning me-2"></i>Pics Détectés</h6>
+                                    <p><strong>{{ analysis.peak_analysis.peaks_count }}</strong> pics de consommation identifiés</p>
+                                    <p>Impact économique : <strong>{{ "{:,.0f}".format(analysis.peak_analysis.economic_impact) }}€</strong></p>
+                                </div>
+                                <div class="alert alert-custom alert-info">
+                                    <h6><i class="bi bi-calendar-event me-2"></i>Pic Maximum</h6>
+                                    <p>{{ analysis.peak_analysis.max_peak.date }} : <strong>{{ "{:,.0f}".format(analysis.peak_analysis.max_peak.value) }} kWh</strong></p>
+                                    <p><small>{{ analysis.peak_analysis.max_peak.context }}</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projections Économiques -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Projections Économiques</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="economic-projection">
+                                    <h6>Projection Annuelle</h6>
+                                    <h3>{{ "{:,.0f}".format(analysis.economic_projections.annual_projection) }}€</h3>
+                                    <p>Coût prévisionnel sur 12 mois</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="economic-projection">
+                                    <h6>Économies Potentielles</h6>
+                                    <h3>{{ "{:,.0f}".format(analysis.economic_projections.annual_savings_potential) }}€</h3>
+                                    <p>Économies réalisables par an</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="economic-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-calculator me-2"></i>Indicateurs Économiques</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-custom">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Coût moyen/kWh</strong></td>
+                                        <td>{{ "{:.3f}".format(analysis.economic_analysis.average_cost_per_kwh) }}€</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Coût quotidien moyen</strong></td>
+                                        <td>{{ "{:.2f}".format(analysis.economic_analysis.daily_average_cost) }}€</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ROI optimisation</strong></td>
+                                        <td>{{ "{:.1f}".format(analysis.economic_projections.roi_months) }} mois</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Réduction possible</strong></td>
+                                        <td>{{ "{:.1f}".format(analysis.economic_projections.potential_reduction_percentage) }}%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommandations Stratégiques -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Recommandations Stratégiques</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for category, recommendations in analysis.strategic_recommendations.items() %}
+                            <div class="col-lg-6 mb-3">
+                                <div class="recommendation-card">
+                                    <h5>{{ category.replace('_', ' ').title() }}</h5>
+                                    <ul class="list-unstyled">
+                                        {% for recommendation in recommendations %}
+                                        <li><i class="bi bi-check-circle me-2"></i>{{ recommendation }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan d'Action -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Plan d'Action Prioritaire</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for action in analysis.action_plan %}
+                        <div class="action-plan-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-1">
+                                    <span class="badge badge-custom bg-primary">{{ action.priority }}</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mb-1">{{ action.title }}</h6>
+                                    <p class="mb-1">{{ action.description }}</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>{{ action.estimated_savings }}€/an</strong><br>
+                                    <small>Économies estimées</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>{{ action.implementation_time }}</strong><br>
+                                    <small>Délai de mise en œuvre</small>
+                                </div>
+                                <div class="col-md-1">
+                                    <span class="badge badge-custom bg-{{ 'success' if action.difficulty == 'Facile' else 'warning' if action.difficulty == 'Moyen' else 'danger' }}">{{ action.difficulty }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Rapides -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-download me-2"></i>Actions et Rapports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button class="btn btn-primary btn-lg w-100 mb-3" onclick="generateReport()">
+                                    <i class="bi bi-file-earmark-pdf me-2"></i>Générer Rapport PDF
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-primary btn-lg w-100 mb-3" onclick="exportData()">
+                                    <i class="bi bi-table me-2"></i>Exporter les Données
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="/upload" class="btn btn-outline-secondary btn-lg w-100 mb-3">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>Nouvelle Analyse
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>EnergyInsight Business</h5>
+                    <p>Solution de pilotage énergétique stratégique pour les entreprises</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2025 EnergyInsight Business. Tous droits réservés.</p>
+                    <p><small>Analyse générée le {{ moment().format('DD/MM/YYYY à HH:mm') }}</small></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Graphique de consommation principal
+        var consumptionData = JSON.parse('{{ consumption_chart_data | safe }}');
+        Plotly.newPlot('consumption-chart', consumptionData.data, consumptionData.layout, {responsive: true});
+
+        // Graphique HP/HC
+        {% if analysis.hp_hc_analysis %}
+        var hpHcData = JSON.parse('{{ hp_hc_chart_data | safe }}');
+        Plotly.newPlot('hp-hc-chart', hpHcData.data, hpHcData.layout, {responsive: true});
+        {% endif %}
+
+        // Graphique mensuel
+        var monthlyData = JSON.parse('{{ monthly_chart_data | safe }}');
+        Plotly.newPlot('monthly-chart', monthlyData.data, monthlyData.layout, {responsive: true});
+
+        // Graphique des pics
+        var peaksData = JSON.parse('{{ peaks_chart_data | safe }}');
+        Plotly.newPlot('peaks-chart', peaksData.data, peaksData.layout, {responsive: true});
+
+        // Graphique économique
+        var economicData = JSON.parse('{{ economic_chart_data | safe }}');
+        Plotly.newPlot('economic-chart', economicData.data, economicData.layout, {responsive: true});
+
+        // Fonction pour générer le rapport PDF
+        function generateReport() {
+            const filename = '{{ filename }}';
+            window.open(`/generate_report/${filename}`, '_blank');
+        }
+
+        // Fonction pour exporter les données
+        function exportData() {
+            const filename = '{{ filename }}';
+            window.location.href = `/export_data/${filename}`;
+        }
+
+        // Fonction pour formater la date
+        function moment() {
+            return {
+                format: function(pattern) {
+                    const now = new Date();
+                    if (pattern === 'DD/MM/YYYY à HH:mm') {
+                        return now.toLocaleDateString('fr-FR') + ' à ' + now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+                    }
+                    return now.toLocaleDateString('fr-FR');
+                }
+            };
+        }
+
+        // Mise à jour de l'heure en temps réel
+        setInterval(function() {
+            const footerTime = document.querySelector('footer small');
+            if (footerTime) {
+                footerTime.textContent = 'Analyse générée le ' + moment().format('DD/MM/YYYY à HH:mm');
+            }
+        }, 60000); // Mise à jour toutes les minutes
+    </script>
+</body>
+</html>

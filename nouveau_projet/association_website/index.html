@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Association - Ensemble pour le changement</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Préconnexion aux polices Google pour améliorer les performances -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- En-tête de la page -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>Association <span>Solidaire</span></h1>
+            </div>
+            <nav>
+                <ul class="menu">
+                    <li><a href="#accueil" class="active">Accueil</a></li>
+                    <li><a href="#qui-sommes-nous">Qui sommes-nous</a></li>
+                    <li><a href="#projets">Nos Projets</a></li>
+                    <li><a href="#impact">Impact</a></li>
+                    <li><a href="#actualites">Actualités</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <div class="menu-mobile">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Section Bannière d'accueil -->
+    <section id="accueil" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Ensemble, construisons un avenir meilleur</h2>
+                <p>Notre association s'engage à créer un impact positif à travers des projets innovants et durables.</p>
+                <div class="cta-buttons">
+                    <a href="#projets" class="btn primary">Découvrir nos projets</a>
+                    <a href="#contact" class="btn secondary">Nous soutenir</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Qui sommes-nous -->
+    <section id="qui-sommes-nous" class="about">
+        <div class="container">
+            <div class="section-header">
+                <h2>Qui sommes-nous</h2>
+                <p>Notre histoire, notre mission et nos valeurs</p>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Notre histoire</h3>
+                    <p>Fondée en 2015, notre association est née de la volonté commune de personnes engagées pour le changement social et environnemental. Face aux défis contemporains, nous avons décidé d'agir concrètement pour construire un monde plus juste et durable.</p>
+                    
+                    <h3>Notre mission</h3>
+                    <p>Nous œuvrons à développer des projets innovants qui répondent aux besoins des communautés locales tout en ayant un impact global. Notre approche intègre les dimensions sociales, économiques et environnementales pour un développement véritablement durable.</p>
+                    
+                    <h3>Nos valeurs</h3>
+                    <ul>
+                        <li><strong>Solidarité</strong> - Agir ensemble pour le bien commun</li>
+                        <li><strong>Innovation</strong> - Trouver des solutions créatives aux problèmes actuels</li>
+                        <li><strong>Durabilité</strong> - Penser à long terme pour les générations futures</li>
+                        <li><strong>Inclusion</strong> - Reconnaître et valoriser la diversité des perspectives</li>
+                    </ul>
+                </div>
+                <div class="about-image">
+                    <img src="images/team.jpg" alt="L'équipe de l'Association Solidaire">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Nos Projets -->
+    <section id="projets" class="projects">
+        <div class="container">
+            <div class="section-header">
+                <h2>Nos Projets</h2>
+                <p>Découvrez nos initiatives pour le changement</p>
+            </div>
+            <div class="projects-filter">
+                <button class="filter-btn active" data-filter="all">Tous</button>
+                <button class="filter-btn" data-filter="education">Éducation</button>
+                <button class="filter-btn" data-filter="environnement">Environnement</button>
+                <button class="filter-btn" data-filter="sante">Santé</button>
+                <button class="filter-btn" data-filter="culture">Culture</button>
+            </div>
+            <div class="projects-grid">
+                <!-- Projet 1 -->
+                <div class="project-card" data-category="education">
+                    <div class="project-image">
+                        <img src="images/projet1.jpg" alt="École pour tous">
+                    </div>
+                    <div class="project-content">
+                        <h3>École pour tous</h3>
+                        <p>Un programme d'accès à l'éducation pour les enfants des zones rurales avec construction d'écoles et formation d'enseignants.</p>
+                        <a href="#" class="read-more">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Projet 2 -->
+                <div class="project-card" data-category="environnement">
+                    <div class="project-image">
+                        <img src="images/projet2.jpg" alt="Reforestation urbaine">
+                    </div>
+                    <div class="project-content">
+                        <h3>Reforestation urbaine</h3>
+                        <p>Initiative de plantation d'arbres en milieu urbain pour améliorer la qualité de l'air et créer des espaces verts communautaires.</p>
+                        <a href="#" class="read-more">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Projet 3 -->
+                <div class="project-card" data-category="sante">
+                    <div class="project-image">
+                        <img src="images/projet3.jpg" alt="Clinique mobile">
+                    </div>
+                    <div class="project-content">
+                        <h3>Clinique mobile</h3>
+                        <p>Service de soins médicaux itinérants pour atteindre les populations isolées et offrir des consultations gratuites.</p>
+                        <a href="#" class="read-more">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Projet 4 -->
+                <div class="project-card" data-category="culture">
+                    <div class="project-image">
+                        <img src="images/projet4.jpg" alt="Art pour tous">
+                    </div>
+                    <div class="project-content">
+                        <h3>Art pour tous</h3>
+                        <p>Ateliers artistiques dans les quartiers défavorisés pour encourager l'expression créative et renforcer le lien social.</p>
+                        <a href="#" class="read-more">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Projet 5 -->
+                <div class="project-card" data-category="environnement">
+                    <div class="project-image">
+                        <img src="images/projet5.jpg" alt="Énergie verte">
+                    </div>
+                    <div class="project-content">
+                        <h3>Énergie verte</h3>
+                        <p>Installation de panneaux solaires dans les villages pour fournir une électricité propre et abordable aux familles.</p>
+                        <a href="#" class="read-more">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Projet 6 -->
+                <div class="project-card" data-category="education">
+                    <div class="project-image">
+                        <img src="images/projet6.jpg" alt="Bibliothèque numérique">
+                    </div>
+                    <div class="project-content">
+                        <h3>Bibliothèque numérique</h3>
+                        <p>Création de centres d'apprentissage équipés de ressources éducatives numériques pour les jeunes des quartiers défavorisés.</p>
+                        <a href="#" class="read-more">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Impact -->
+    <section id="impact" class="impact">
+        <div class="container">
+            <div class="section-header">
+                <h2>Notre Impact</h2>
+                <p>Des chiffres qui témoignent de notre engagement</p>
+            </div>
+            <div class="impact-stats">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="42">0</div>
+                    <div class="stat-label">Projets réalisés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-count="12500">0</div>
+                    <div class="stat-label">Bénéficiaires directs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-count="23">0</div>
+                    <div class="stat-label">Communautés soutenues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-count="78">0</div>
+                    <div class="stat-label">Partenaires engagés</div>
+                </div>
+            </div>
+            <div class="testimonials">
+                <h3>Témoignages</h3>
+                <div class="testimonial-slider">
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"Grâce à l'association, notre village a maintenant accès à l'eau potable et nos enfants peuvent aller à l'école. Un impact réel sur notre quotidien."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="images/testimonial1.jpg" alt="Marie K.">
+                            <h4>Marie K.</h4>
+                            <p>Bénéficiaire du projet Eau pour tous</p>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"Participer aux projets de reforestation m'a permis de comprendre l'importance de préserver notre environnement tout en créant du lien avec ma communauté."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="images/testimonial2.jpg" alt="Thomas L.">
+                            <h4>Thomas L.</h4>
+                            <p>Volontaire projet Reforestation</p>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"L'approche innovante de l'association a transformé notre façon de voir le développement local. Nous sommes fiers d'être partenaires de cette aventure."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="images/testimonial3.jpg" alt="Sophie M.">
+                            <h4>Sophie M.</h4>
+                            <p>Directrice fondation partenaire</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <button class="prev"><i class="fas fa-chevron-left"></i></button>
+                    <div class="slider-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <button class="next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Actualités -->
+    <section id="actualites" class="news">
+        <div class="container">
+            <div class="section-header">
+                <h2>Actualités</h2>
+                <p>Restez informés de nos dernières actions</p>
+            </div>
+            <div class="news-grid">
+                <div class="news-card">
+                    <div class="news-image">
+                        <img src="images/news1.jpg" alt="Inauguration école">
+                        <div class="news-date">
+                            <span class="day">12</span>
+                            <span class="month">JUN</span>
+                        </div>
+                    </div>
+                    <div class="news-content">
+                        <h3>Inauguration d'une nouvelle école</h3>
+                        <p>Nous avons inauguré notre 5ème école dans la région de Mbandaka, offrant un accès à l'éducation à plus de 200 enfants.</p>
+                        <a href="#" class="read-more">Lire la suite <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="news-card">
+                    <div class="news-image">
+                        <img src="images/news2.jpg" alt="Partenariat stratégique">
+                        <div class="news-date">
+                            <span class="day">28</span>
+                            <span class="month">MAI</span>
+                        </div>
+                    </div>
+                    <div class="news-content">
+                        <h3>Nouveau partenariat stratégique</h3>
+                        <p>Un accord majeur avec la Fondation GreenFuture va permettre d'étendre nos projets d'énergie renouvelable dans 5 nouvelles régions.</p>
+                        <a href="#" class="read-more">Lire la suite <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="news-card">
+                    <div class="news-image">
+                        <img src="images/news3.jpg" alt="Forum international">
+                        <div class="news-date">
+                            <span class="day">15</span>
+                            <span class="month">AVR</span>
+                        </div>
+                    </div>
+                    <div class="news-content">
+                        <h3>Notre participation au Forum International</h3>
+                        <p>Notre directrice a présenté nos solutions innovantes lors du Forum International du Développement Durable à Genève.</p>
+                        <a href="#" class="read-more">Lire la suite <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="news-more">
+                <a href="#" class="btn secondary">Toutes nos actualités</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Nous soutenir -->
+    <section id="soutenir" class="support">
+        <div class="container">
+            <div class="section-header light">
+                <h2>Nous soutenir</h2>
+                <p>Ensemble, nous pouvons faire la différence</p>
+            </div>
+            <div class="support-options">
+                <div class="support-card">
+                    <div class="support-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3>Faire un don</h3>
+                    <p>Votre contribution financière nous permet de développer nos projets et d'avoir un impact concret sur le terrain.</p>
+                    <a href="#" class="btn primary">Je donne</a>
+                </div>
+                <div class="support-card">
+                    <div class="support-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3>Devenir bénévole</h3>
+                    <p>Rejoignez notre communauté et partagez vos compétences pour contribuer activement à nos missions.</p>
+                    <a href="#" class="btn primary">Je m'engage</a>
+                </div>
+                <div class="support-card">
+                    <div class="support-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Devenir partenaire</h3>
+                    <p>Entreprises, fondations, institutions : construisons ensemble des partenariats durables et impactants.</p>
+                    <a href="#" class="btn primary">Collaborons</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Contact -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2>Contact</h2>
+                <p>Nous sommes à votre écoute</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-text">
+                            <h4>Adresse</h4>
+                            <p>123 Avenue des Solidarités<br>75001 Paris, France</p>
+                        </div>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-text">
+                            <h4>Téléphone</h4>
+                            <p>+33 (0)1 23 45 67 89</p>
+                        </div>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-text">
+                            <h4>Email</h4>
+                            <p>contact@association-solidaire.org</p>
+                        </div>
+                    </div>
+                    <div class="contact-social">
+                        <h4>Suivez-nous</h4>
+                        <div class="social-links">
+                            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form action="#" method="POST" id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Nom complet</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Sujet</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn primary">Envoyer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Google Map -->
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Association Solidaire</h3>
+                    <p>Ensemble pour un avenir meilleur</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-link-group">
+                        <h4>L'association</h4>
+                        <ul>
+                            <li><a href="#qui-sommes-nous">Qui sommes-nous</a></li>
+                            <li><a href="#">Notre équipe</a></li>
+                            <li><a href="#">Gouvernance</a></li>
+                            <li><a href="#">Rapports annuels</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-group">
+                        <h4>Nos actions</h4>
+                        <ul>
+                            <li><a href="#projets">Projets</a></li>
+                            <li><a href="#impact">Impact</a></li>
+                            <li><a href="#actualites">Actualités</a></li>
+                            <li><a href="#">Événements</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-group">
+                        <h4>Nous soutenir</h4>
+                        <ul>
+                            <li><a href="#soutenir">Faire un don</a></li>
+                            <li><a href="#soutenir">Devenir bénévole</a></li>
+                            <li><a href="#soutenir">Devenir partenaire</a></li>
+                            <li><a href="#">Legs et donations</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-newsletter">
+                    <h4>Newsletter</h4>
+                    <p>Restez informés de nos actions et actualités</p>
+                    <form action="#" method="POST">
+                        <input type="email" placeholder="Votre email" required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="copyright">
+                    &copy; 2023 Association Solidaire. Tous droits réservés.
+                </div>
+                <div class="legal-links">
+                    <a href="#">Mentions légales</a>
+                    <a href="#">Politique de confidentialité</a>
+                    <a href="#">Gestion des cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i></a>
+
+    <!-- Scripts -->
+    <script src="js/script.js"></script>
+    <!-- Script pour Google Maps (remplacer API_KEY par votre clé API) -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=API_KEY&callback=initMap"></script>
+</body>
+</html>

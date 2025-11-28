@@ -1,0 +1,273 @@
+{% extends 'layout.html' %}
+
+{% block title %}Formats Supportés - StatEnergie{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="content-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="section-title"><i class="fas fa-file-alt"></i> Formats Spécialisés Supportés</h1>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        </div>
+
+            <!-- Format 1: GRD-F / Courbes de charge -->
+            <div class="format-section">
+                <h3><i class="fas fa-wave-square"></i> 1. Format GRD-F / Courbes de Charge</h3>
+                
+                <div class="companies-list">
+                    <span class="company-badge">Enedis</span>
+                    <span class="company-badge">EDF</span>
+                    <span class="company-badge">ENGIE</span>
+                    <span class="company-badge">TotalEnergies</span>
+                    <span class="company-badge">Tous distributeurs</span>
+                </div>
+
+                <h5>📋 Colonnes attendues :</h5>
+                <table class="table table-striped example-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Colonne</th>
+                            <th>Description</th>
+                            <th>Exemple</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>DateTime</code> ou <code>Date/Heure</code></td>
+                            <td>Horodatage des mesures</td>
+                            <td>2024-01-01 00:30</td>
+                        </tr>
+                        <tr>
+                            <td><code>Index_kWh</code></td>
+                            <td>Index cumulé du compteur</td>
+                            <td>12450.5</td>
+                        </tr>
+                        <tr>
+                            <td><code>Conso_kWh</code></td>
+                            <td>Consommation sur le pas</td>
+                            <td>15.2</td>
+                        </tr>
+                        <tr>
+                            <td><code>HP_kWh</code> / <code>HC_kWh</code></td>
+                            <td>Heures Pleines / Creuses</td>
+                            <td>35.2 / 0</td>
+                        </tr>
+                        <tr>
+                            <td><code>PDL</code> ou <code>PRM</code></td>
+                            <td>Point de livraison</td>
+                            <td>12345678901234</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle"></i> Comment obtenir ces données ?</h6>
+                    <p>Connectez-vous à votre espace client professionnel chez votre fournisseur et exportez vos courbes de charge au format CSV.</p>
+                </div>
+            </div>
+
+            <!-- Format 2: Factures Normalisées -->
+            <div class="format-section">
+                <h3><i class="fas fa-receipt"></i> 2. Format Factures Normalisées</h3>
+                
+                <p><strong>Pour la comptabilité d'entreprise et l'optimisation tarifaire</strong></p>
+
+                <h5>📋 Colonnes attendues :</h5>
+                <table class="table table-striped example-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Colonne</th>
+                            <th>Description</th>
+                            <th>Exemple</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Numero_Client</code></td>
+                            <td>Identifiant client</td>
+                            <td>003458962</td>
+                        </tr>
+                        <tr>
+                            <td><code>Periode_Facturee</code></td>
+                            <td>Période de la facture</td>
+                            <td>01/01/2024 au 31/01/2024</td>
+                        </tr>
+                        <tr>
+                            <td><code>Conso_HP_kWh</code> / <code>Conso_HC_kWh</code></td>
+                            <td>Consommations HP/HC</td>
+                            <td>1200 / 500</td>
+                        </tr>
+                        <tr>
+                            <td><code>Montant_HT</code> / <code>Montant_TTC</code></td>
+                            <td>Montants facturés</td>
+                            <td>243.90 / 292.68</td>
+                        </tr>
+                        <tr>
+                            <td><code>Fournisseur</code></td>
+                            <td>Nom du fournisseur</td>
+                            <td>EDF, ENGIE, TotalEnergies</td>
+                        </tr>
+                        <tr>
+                            <td><code>CSPE</code>, <code>CTA</code>, <code>TVA</code></td>
+                            <td>Détail des taxes</td>
+                            <td>22.50, 5.45, 48.78</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Conseil</h6>
+                    <p>Si vous avez plusieurs sites, regroupez toutes vos factures dans un seul fichier CSV pour une analyse globale.</p>
+                </div>
+            </div>
+
+            <!-- Format 3: ADEME / ISO 50001 -->
+            <div class="format-section">
+                <h3><i class="fas fa-certificate"></i> 3. Format ADEME / ISO 50001</h3>
+                
+                <p><strong>Pour le management énergétique et la conformité réglementaire</strong></p>
+
+                <h5>📋 Colonnes attendues :</h5>
+                <table class="table table-striped example-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Colonne</th>
+                            <th>Description</th>
+                            <th>Exemple</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Indicateur_Energetique</code></td>
+                            <td>Type de KPI énergétique</td>
+                            <td>Ratio_kWh_par_m2</td>
+                        </tr>
+                        <tr>
+                            <td><code>Type_Energie</code></td>
+                            <td>Type d'énergie mesuré</td>
+                            <td>Electricite, Gaz, Mixte</td>
+                        </tr>
+                        <tr>
+                            <td><code>Consommation_kWh</code></td>
+                            <td>Consommation réelle</td>
+                            <td>125000</td>
+                        </tr>
+                        <tr>
+                            <td><code>Objectif_kWh</code></td>
+                            <td>Objectif fixé</td>
+                            <td>115000</td>
+                        </tr>
+                        <tr>
+                            <td><code>Performance_Pourcent</code></td>
+                            <td>% performance vs objectif</td>
+                            <td>108.7</td>
+                        </tr>
+                        <tr>
+                            <td><code>Periode</code></td>
+                            <td>Période de mesure</td>
+                            <td>2024-T1</td>
+                        </tr>
+                        <tr>
+                            <td><code>Site</code></td>
+                            <td>Localisation</td>
+                            <td>Batiment_Principal</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-check-circle"></i> Conformité ISO 50001</h6>
+                    <p>Ce format vous aide à suivre vos indicateurs de performance énergétique et à maintenir votre certification ISO 50001.</p>
+                </div>
+            </div>
+
+            <!-- Section d'aide -->
+            <div class="mt-5 p-4 bg-light rounded">
+                <h4><i class="fas fa-question-circle"></i> Besoin d'aide ?</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>🔧 Préparer vos fichiers :</h6>
+                        <ul>
+                            <li>Format CSV recommandé (UTF-8)</li>
+                            <li>Séparateur : virgule (,)</li>
+                            <li>Première ligne = en-têtes</li>
+                            <li>Pas d'espaces dans les noms de colonnes</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>📁 Fichiers d'exemple :</h6>
+                        <ul>
+                            <li><a href="/static/exemple_grdf_courbe_charge.csv" download>exemple_grdf_courbe_charge.csv</a></li>
+                            <li><a href="/static/exemple_factures_normalisees.csv" download>exemple_factures_normalisees.csv</a></li>
+                            <li><a href="/static/exemple_ademe_iso50001.csv" download>exemple_ademe_iso50001.csv</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('upload') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-upload"></i> Commencer l'analyse
+                </a>
+            </div>
+            
+            <!-- Format 4: Factures PDF -->
+            <div class="format-section">
+                <h3><i class="fas fa-file-pdf"></i> 4. Factures Énergétiques PDF</h3>
+                
+                <div class="companies-list">
+                    <span class="company-badge">EDF</span>
+                    <span class="company-badge">ENGIE</span>
+                    <span class="company-badge">TotalEnergies</span>
+                    <span class="company-badge">Direct Energie</span>
+                    <span class="company-badge">Planète OUI</span>
+                </div>
+
+                <h5>📋 Informations extraites des factures :</h5>
+                <table class="table table-striped example-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Information</th>
+                            <th>Description</th>
+                            <th>Exemple</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Fournisseur</code></td>
+                            <td>Identification automatique du fournisseur</td>
+                            <td>ENGIE</td>
+                        </tr>
+                        <tr>
+                            <td><code>Date de facture</code></td>
+                            <td>Date d'émission de la facture</td>
+                            <td>15/06/2024</td>
+                        </tr>
+                        <tr>
+                            <td><code>Consommation (kWh)</code></td>
+                            <td>Volume d'énergie facturé</td>
+                            <td>450.5</td>
+                        </tr>
+                        <tr>
+                            <td><code>Montant (€)</code></td>
+                            <td>Montant total facturé</td>
+                            <td>92.35</td>
+                        </tr>
+                        <tr>
+                            <td><code>Période</code></td>
+                            <td>Période couverte par la facture</td>
+                            <td>01/05/2024 - 31/05/2024</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Analyse intelligente :</strong> Notre système extrait automatiquement les données clés de vos factures énergétiques en PDF pour vous permettre de suivre l'évolution de votre consommation et de vos coûts sans saisie manuelle.
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,548 @@
+{% extends 'layout.html' %}
+
+{% block title %}Analyse de factures PDF - ÉnergiePulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .extraction-mode-options {
+        background-color: rgba(40, 44, 52, 0.8);
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .extraction-mode-options label {
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        margin-right: 10px;
+    }
+    
+    .extraction-mode-options label:hover {
+        background-color: rgba(70, 74, 82, 0.6);
+    }
+    
+    .extraction-mode-options input[type="radio"]:checked + label {
+        background-color: #2E86AB;
+        color: white;
+    }
+    
+    .extraction-mode-options input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+    
+    .advanced-options {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #444;
+    }
+    
+    .debug-info {
+        font-family: monospace;
+        background-color: #1a1a1a;
+        color: #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 15px;
+    }
+    
+    .debug-info pre {
+        margin: 0;
+        white-space: pre-wrap;
+    }
+    
+    .extraction-tips {
+        background-color: rgba(40, 60, 80, 0.6);
+        border-left: 4px solid #2E86AB;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .debug-btn {
+        background-color: #333;
+        border-color: #555;
+    }
+    
+    .debug-btn:hover {
+        background-color: #444;
+        border-color: #666;
+    }
+    
+    .mode-description {
+        font-size: 0.85rem;
+        margin-top: 8px;
+        color: #aaa;
+    }
+    
+    .toggle-advanced {
+        color: #6c757d;
+        text-decoration: none;
+    }
+    
+    .toggle-advanced:hover {
+        color: #fff;
+        text-decoration: none;
+    }
+    
+    .toggle-advanced i {
+        transition: transform 0.3s;
+    }
+    
+    .rotate-icon {
+        transform: rotate(180deg);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="content-section">
+        <h1 class="section-title text-center">Analyse de factures énergétiques PDF</h1>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="upload-section">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold mb-3">
+                            <i class="fas fa-file-pdf"></i> Analyse de factures PDF
+                        </h2>
+                        <p class="lead text-muted">
+                            Importez vos factures d'énergie au format PDF pour extraire automatiquement les données de consommation
+                        </p>
+                    </div>
+
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                {% for message in messages %}
+                                    {{ message }}
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('analyze_pdf') }}" enctype="multipart/form-data" id="pdfUploadForm">
+                        <div class="upload-zone" id="pdfUploadZone">
+                            <div class="upload-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <h4 class="mb-3">Glissez-déposez votre facture PDF ici</h4>
+                            <p class="text-muted mb-4">ou cliquez pour sélectionner un fichier</p>
+                            <input type="file" name="pdf_file" class="file-input" id="pdfFileInput" accept=".pdf" required>
+                            <button type="button" class="btn upload-btn" onclick="document.getElementById('pdfFileInput').click()">
+                                <i class="fas fa-folder-open"></i> Sélectionner une facture
+                            </button>
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Fournisseurs supportés: EDF, ENGIE, TotalEnergies, Direct Energie, Planète OUI
+                                </small>
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <a href="{{ url_for('manual_bill_entry') }}" class="btn btn-secondary">
+                                    <i class="fas fa-keyboard"></i> Saisie manuelle des données
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Options d'extraction avancées -->
+                        <div class="extraction-mode-options">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="m-0"><i class="fas fa-cog"></i> Mode d'extraction</h5>
+                                <a href="#" class="toggle-advanced" id="toggleAdvancedBtn">
+                                    Options avancées <i class="fas fa-chevron-down"></i>
+                                </a>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="extraction_mode" id="modeStandard" value="standard" checked>
+                                    <label class="form-check-label" for="modeStandard">Standard</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="extraction_mode" id="modeAgressif" value="aggressive">
+                                    <label class="form-check-label" for="modeAgressif">Agressif</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="extraction_mode" id="modeFournisseur" value="provider_specific">
+                                    <label class="form-check-label" for="modeFournisseur">Spécifique au fournisseur</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mode-description">
+                                Mode standard : extraction générique adaptée à la plupart des factures
+                            </div>
+                            
+                            <!-- Options avancées (cachées par défaut) -->
+                            <div class="advanced-options d-none" id="advancedOptions">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="extract_tables" id="extractTables" value="1">
+                                            <label class="form-check-label" for="extractTables">
+                                                Extraire les tableaux
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="debug_mode" id="debugMode" value="1">
+                                            <label class="form-check-label" for="debugMode">
+                                                Mode diagnostic
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="providerSelect">Fournisseur spécifique</label>
+                                            <select class="form-control" id="providerSelect" name="specific_provider">
+                                                <option value="">Auto-détection</option>
+                                                <option value="EDF">EDF</option>
+                                                <option value="ENGIE">ENGIE</option>
+                                                <option value="TotalEnergies">TotalEnergies</option>
+                                                <option value="Direct Energie">Direct Energie</option>
+                                                <option value="Planète OUI">Planète OUI</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg analyze-btn" id="analyzePdfBtn">
+                                <i class="fas fa-search"></i> Analyser la facture
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Section d'aide pour les factures réelles -->
+                    <div class="extraction-tips mt-4">
+                        <h5><i class="fas fa-lightbulb"></i> Conseils pour l'analyse de factures réelles</h5>
+                        <p>Pour améliorer l'extraction des factures EDF et autres fournisseurs:</p>
+                        <ul>
+                            <li>Utilisez des PDF natifs (non scannés) pour une meilleure précision</li>
+                            <li>Pour les factures scannées, assurez-vous qu'elles soient bien alignées et lisibles</li>
+                            <li>Sélectionnez le mode "Spécifique au fournisseur" et précisez votre fournisseur</li>
+                            <li>Utilisez le mode "Agressif" pour les factures plus complexes</li>
+                            <li>Activez le mode diagnostic pour voir le texte brut extrait</li>
+                        </ul>
+                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#pdfHelpModal">
+                            <i class="fas fa-question-circle"></i> En savoir plus
+                        </button>
+                    </div>
+
+                    <!-- Section d'exemple de test -->
+                    <div class="sample-data-section mt-5">
+                        <div class="text-center">
+                            <h3 class="mb-3">
+                                <i class="fas fa-flask"></i> Testez avec notre facture exemple
+                            </h3>
+                            <p class="mb-4">
+                                Découvrez la capacité d'analyse de factures avec notre exemple
+                            </p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="{{ url_for('analyze_sample_pdf') }}" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-play"></i> Tester avec la facture exemple
+                                </a>
+                                <a href="{{ url_for('manual_bill_entry') }}" class="btn btn-outline-success btn-lg">
+                                    <i class="fas fa-edit"></i> Saisie manuelle de facture
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Si des résultats sont présents, les afficher -->
+{% if result %}
+<div class="container mt-5">
+    <div class="card bg-dark text-light border-light">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-receipt"></i> Résultats de l'analyse
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Informations de la facture</h4>
+                    <table class="table table-dark">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Fournisseur</th>
+                                <td>{{ result.provider }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Consommation</th>
+                                <td>{{ result.consumption_kwh|default('-', true) }} kWh</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Montant</th>
+                                <td>{{ result.amount|default('-', true) }} €</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Période de facturation</th>
+                                <td>
+                                    {% if result.period_start and result.period_end %}
+                                        Du {{ result.period_start }} au {{ result.period_end }}
+                                    {% else %}
+                                        Non spécifiée
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Référence client</th>
+                                <td>{{ result.client_ref|default('-', true) }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Numéro de compteur</th>
+                                <td>{{ result.meter_number|default('-', true) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    {% if result.error %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> {{ result.error }}
+                    </div>
+                    
+                    <!-- Bouton de diagnostic -->
+                    {% if debug_text %}
+                    <button class="btn btn-sm btn-outline-secondary debug-btn mb-3" type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#debugInfo">
+                        <i class="fas fa-bug"></i> Afficher les informations de diagnostic
+                    </button>
+                    <div class="collapse" id="debugInfo">
+                        <div class="debug-info">
+                            <h6>Texte extrait du PDF :</h6>
+                            <pre>{{ debug_text|default('Aucun texte extrait', true) }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card bg-dark border-light mt-3">
+                        <div class="card-header">
+                            Tentatives supplémentaires
+                        </div>
+                        <div class="card-body">
+                            <p>Essayez ces options pour améliorer l'extraction:</p>
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('analyze_pdf_advanced', pdf_id=pdf_id, mode='aggressive') }}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-bolt"></i> Mode d'extraction agressif
+                                </a>
+                                <a href="{{ url_for('analyze_pdf_advanced', pdf_id=pdf_id, mode='provider_specific') }}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-sitemap"></i> Extraction spécifique au fournisseur
+                                </a>
+                                <a href="{{ url_for('pdf_extraction_help') }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-question-circle"></i> Guide de résolution des problèmes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card bg-dark border-light">
+                        <div class="card-header">
+                            Actions disponibles
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <a href="{{ url_for('export_pdf_data', pdf_id=pdf_id) }}" class="btn btn-outline-light btn-block">
+                                    <i class="fas fa-download"></i> Télécharger les données (CSV)
+                                </a>
+                            </div>
+                            <div class="mb-3">
+                                <a href="{{ url_for('analyze_with_data', pdf_id=pdf_id) }}" class="btn btn-primary btn-block">
+                                    <i class="fas fa-chart-line"></i> Analyser cette consommation
+                                </a>
+                            </div>
+                            <div class="mb-0">
+                                <a href="{{ url_for('compare_pdf_data', pdf_id=pdf_id) }}" class="btn btn-secondary btn-block">
+                                    <i class="fas fa-balance-scale"></i> Comparer avec d'autres données
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal d'aide PDF -->
+<div class="modal fade" id="pdfHelpModal" tabindex="-1" aria-labelledby="pdfHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfHelpModalLabel">Guide d'extraction de factures PDF</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 class="mb-3">Pourquoi certaines factures sont difficiles à analyser ?</h6>
+                <p>Les factures réelles comme celles d'EDF peuvent être complexes à analyser pour plusieurs raisons:</p>
+                <ul>
+                    <li><strong>Protection contre la copie</strong>: certains PDF sont protégés contre l'extraction de texte</li>
+                    <li><strong>Format scanné</strong>: les factures scannées contiennent des images, pas du texte</li>
+                    <li><strong>Mise en page complexe</strong>: tableaux, colonnes multiples et graphiques rendent l'extraction difficile</li>
+                    <li><strong>Différentes versions</strong>: chaque fournisseur utilise ses propres formats, qui changent régulièrement</li>
+                </ul>
+                
+                <h6 class="mb-3 mt-4">Conseils pour chaque fournisseur:</h6>
+                <div class="accordion" id="providerAccordion">
+                    <div class="accordion-item bg-dark">
+                        <h2 class="accordion-header" id="headingEDF">
+                            <button class="accordion-button collapsed bg-dark text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEDF">
+                                EDF
+                            </button>
+                        </h2>
+                        <div id="collapseEDF" class="accordion-collapse collapse" data-bs-parent="#providerAccordion">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li>Préférez les factures téléchargées directement de l'espace client</li>
+                                    <li>Utilisez le mode "Spécifique au fournisseur" et sélectionnez "EDF"</li>
+                                    <li>Les factures récentes (depuis 2023) sont mieux supportées</li>
+                                    <li>La consommation se trouve généralement dans la section "Détail de votre consommation"</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-dark">
+                        <h2 class="accordion-header" id="headingENGIE">
+                            <button class="accordion-button collapsed bg-dark text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseENGIE">
+                                ENGIE
+                            </button>
+                        </h2>
+                        <div id="collapseENGIE" class="accordion-collapse collapse" data-bs-parent="#providerAccordion">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li>Les factures ENGIE contiennent souvent un QR code qui peut perturber l'extraction</li>
+                                    <li>Activez l'option "Extraire les tableaux" pour une meilleure détection</li>
+                                    <li>Utilisez le mode "Agressif" si l'extraction standard échoue</li>
+                                    <li>Les montants sont parfois exprimés avec le texte "TTC" à proximité</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Autres fournisseurs... -->
+                </div>
+                
+                <h6 class="mb-3 mt-4">Modes d'extraction:</h6>
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th>Mode</th>
+                            <th>Description</th>
+                            <th>Quand utiliser</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Standard</td>
+                            <td>Extraction basique avec des motifs généraux</td>
+                            <td>Pour la plupart des factures électroniques</td>
+                        </tr>
+                        <tr>
+                            <td>Agressif</td>
+                            <td>Utilise des motifs plus larges et tolère plus d'erreurs</td>
+                            <td>Factures complexes ou mal formatées</td>
+                        </tr>
+                        <tr>
+                            <td>Spécifique</td>
+                            <td>Utilise des règles propres à chaque fournisseur</td>
+                            <td>Quand vous connaissez votre fournisseur</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Gestion du drag & drop pour les PDF
+    const pdfUploadZone = document.getElementById('pdfUploadZone');
+    const pdfFileInput = document.getElementById('pdfFileInput');
+    const analyzePdfBtn = document.getElementById('analyzePdfBtn');
+
+    if (pdfUploadZone) {
+        pdfUploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            pdfUploadZone.classList.add('dragover');
+        });
+
+        pdfUploadZone.addEventListener('dragleave', () => {
+            pdfUploadZone.classList.remove('dragover');
+        });
+
+        pdfUploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            pdfUploadZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                pdfFileInput.files = files;
+                showPdfFileName(files[0].name);
+            }
+        });
+
+        pdfFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                showPdfFileName(e.target.files[0].name);
+            }
+        });
+
+        function showPdfFileName(fileName) {
+            const uploadIcon = pdfUploadZone.querySelector('.upload-icon i');
+            const uploadTitle = pdfUploadZone.querySelector('h4');
+            
+            uploadIcon.className = 'fas fa-file-pdf';
+            uploadTitle.textContent = fileName;
+            analyzePdfBtn.style.display = 'inline-block';
+        }
+    }
+    
+    // Gestion des modes d'extraction
+    const modeRadios = document.querySelectorAll('input[name="extraction_mode"]');
+    const modeDescription = document.querySelector('.mode-description');
+    
+    modeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            switch(this.value) {
+                case 'standard':
+                    modeDescription.textContent = 'Mode standard : extraction générique adaptée à la plupart des factures';
+                    break;
+                case 'aggressive':
+                    modeDescription.textContent = 'Mode agressif : extraction intensive pour les factures complexes ou mal formatées';
+                    break;
+                case 'provider_specific':
+                    modeDescription.textContent = 'Mode spécifique : utilise des règles dédiées à chaque fournisseur';
+                    break;
+            }
+        });
+    });
+    
+    // Toggle options avancées
+    const toggleAdvancedBtn = document.getElementById('toggleAdvancedBtn');
+    const advancedOptions = document.getElementById('advancedOptions');
+    const chevronIcon = toggleAdvancedBtn.querySelector('i');
+    
+    toggleAdvancedBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        advancedOptions.classList.toggle('d-none');
+        chevronIcon.classList.toggle('rotate-icon');
+    });
+</script>
+{% endblock %}

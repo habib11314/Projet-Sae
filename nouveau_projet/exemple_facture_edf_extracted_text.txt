@@ -1,0 +1,21 @@
+EDF
+ÉLECTRICITÉ DE FRANCE
+FACTURE D'ÉLECTRICITÉ
+Date d'émission : 09/07/2025 M. JEAN DUPONT
+N° client : EDF12345678 123 RUE DE L'EXEMPLE
+PDL : 12345678901234 75000 PARIS
+Référence contrat : HC12345678
+DÉTAILS DE VOTRE CONSOMMATION
+Période du 09/06/2025 au 09/07/2025
+Consommation : 328 kWh
+Tarif : Bleu
+DÉSIGNATION MONTANT HT TVA MONTANT TTC
+Abonnement 12,50 € 2,50 € 15,00 €
+Consommation (328 kWh) 52,48 € 10,50 € 62,98 €
+CSPE 8,20 € 1,64 € 9,84 €
+CTA 3,15 € 0,63 € 3,78 €
+Total 76,33 € 15,27 € 91,60 €
+MONTANT TTC À PAYER
+91,60 €
+EDF - Électricité de France - SA au capital de 1 551 810 543 euros
+RCS Paris 552 081 317 - www.edf.fr
