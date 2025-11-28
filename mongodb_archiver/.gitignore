@@ -1,0 +1,43 @@
+# Environnement variables (ne JAMAIS commiter ce fichier !)
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Logs
+logs/
+*.log
+
+# Resume tokens (change stream)
+.resume_token.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+test_results/
+
+# Samples
+samples.json
+*.sample.json

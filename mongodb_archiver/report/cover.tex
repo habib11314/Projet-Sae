@@ -1,0 +1,59 @@
+% Page de garde LaTeX générée automatiquement
+% Remplacez les commandes ci-dessous par vos valeurs (titre, auteur, logo...)
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{ragged2e}
+\usepackage{xcolor}
+\usepackage{titling}
+\geometry{margin=2.5cm}
+
+% --- Personnalisation (modifiez ici) ---
+\newcommand{\ReportTitle}{Titre du rapport}
+\newcommand{\ReportSubtitle}{Sous‑titre du rapport}
+\newcommand{\AuthorName}{Prénom Nom}
+\newcommand{\Institution}{Organisation / Université}
+\newcommand{\ReportDate}{\today}
+\newcommand{\LogoPath}{logo.png} % mettre le logo dans le même dossier ou fournir chemin relatif
+\newcommand{\ReportVersion}{v1.0}
+% ---------------------------------------
+
+\begin{document}
+\thispagestyle{empty}
+\begin{titlepage}
+  \centering
+  \vspace*{1.8cm}
+
+  % Logo (optionnel)
+  \IfFileExists{\LogoPath}{\includegraphics[height=2.6cm]{\LogoPath}\\[1.1cm]}{}
+
+  % Titre principal
+  {\Huge\bfseries\ReportTitle \\}
+  \vspace{0.6cm}
+
+  % Sous-titre
+  {\Large\itshape\ReportSubtitle \\}
+  \vspace{1.6cm}
+
+  % Auteur et institution
+  {\large\AuthorName \\}
+  \vspace{0.2cm}
+  {\normalsize\Institution \\}
+  \vspace{0.6cm}
+
+  % Version / date
+  {\large Version \textbf{\ReportVersion} \\}
+  \vspace{0.8cm}
+  {\large \ReportDate \\}
+
+  \vfill
+
+  % Bas de page: petit texte de contexte (optionnel)
+  {\small\textcolor{gray}{Rapport produit dans le cadre du projet "Système de simulation et d\'orchestration des commandes".}\\}
+  \vspace{0.5cm}
+\end{titlepage}
+\clearpage
+\end{document}
