@@ -1,0 +1,55 @@
+<!-- Logo SVG pour EnergyPulse -->
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="45" viewBox="0 0 160 45">
+  <style>
+    .pulse-circle {
+      animation: pulse-animation 2s infinite;
+    }
+    @keyframes pulse-animation {
+      0% {
+        r: 5;
+        opacity: 0.7;
+      }
+      50% {
+        r: 7;
+        opacity: 1;
+      }
+      100% {
+        r: 5;
+        opacity: 0.7;
+      }
+    }
+    .st0 {
+      fill: #1E88E5;
+    }
+    .st1 {
+      fill: #64B5F6;
+    }
+    .st2 {
+      fill: #0D47A1;
+    }
+    .logo-text {
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+    }
+  </style>
+  
+  <!-- Main logo shape -->
+  <path class="st0" d="M20,10 L35,10 L25,40 L10,40 Z" />
+  <path class="st1" d="M15,5 L30,5 L35,10 L20,10 Z" />
+  <path class="st2" d="M10,40 L25,40 L20,45 L5,45 Z" />
+  
+  <!-- Pulse effect circles -->
+  <circle class="st1 pulse-circle" cx="30" cy="7" r="5" />
+  
+  <!-- Zigzag energy line -->
+  <polyline 
+    points="40,25 45,15 50,25 55,15 60,25 65,15 70,25" 
+    stroke="#1E88E5" 
+    fill="none" 
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round" />
+  
+  <!-- Text -->
+  <text x="45" y="35" class="logo-text" font-size="18" fill="#2C3E50">EnergyPulse</text>
+</svg>

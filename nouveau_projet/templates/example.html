@@ -1,0 +1,311 @@
+{% extends 'layout_manual.html' %}
+
+{% block title %}Exemple d'analyse énergétique - StatEnergie{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        background-color: rgba(40, 44, 52, 0.9);
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    .card {
+        background-color: rgba(30, 34, 42, 0.8);
+        border: 1px solid #444;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        background-color: rgba(46, 134, 171, 0.3);
+        border-bottom: 1px solid #444;
+        padding: 12px 20px;
+    }
+    
+    .metric-card {
+        background: linear-gradient(135deg, #2E86AB 0%, #1A5A7B 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        transition: transform 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .metric-icon {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .metric-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .metric-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+    
+    .recommendation-item {
+        background-color: rgba(46, 134, 171, 0.1);
+        border-left: 4px solid #2E86AB;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 0 5px 5px 0;
+    }
+    
+    .plotly-graph {
+        width: 100%;
+        height: 400px;
+        margin: 0 auto;
+    }
+    
+    .client-info-table {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    
+    .client-info-table td {
+        padding: 8px 0;
+    }
+    
+    .client-info-table td:first-child {
+        font-weight: 600;
+        width: 40%;
+        color: #2E86AB;
+    }
+    
+    .section-title {
+        color: #2E86AB;
+        border-bottom: 2px solid #2E86AB;
+        padding-bottom: 10px;
+        margin: 30px 0 20px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="content-section">
+        <h1 class="text-center mb-4">Exemple d'analyse énergétique</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-info-circle me-2"></i>Informations du client</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="client-info-table">
+                                    <tr>
+                                        <td>Fournisseur:</td>
+                                        <td>{{ metrics.provider }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Référence client:</td>
+                                        <td>{{ metrics.client_ref }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Numéro de compteur:</td>
+                                        <td>{{ metrics.meter_number }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="client-info-table">
+                                    <tr>
+                                        <td>Période analysée:</td>
+                                        <td>{{ metrics.date_min }} - {{ metrics.date_max }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Type d'analyse:</td>
+                                        <td>Consommation énergétique</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Données:</td>
+                                        <td>Exemple prédéfini</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Métriques clés -->
+        <h2 class="section-title">Métriques clés</h2>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="metric-value">{{ metrics.avg_daily_consumption }} kWh</div>
+                    <div class="metric-label">Consommation moyenne journalière</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fas fa-euro-sign"></i></div>
+                    <div class="metric-value">{{ metrics.avg_daily_cost }} €</div>
+                    <div class="metric-label">Coût moyen journalier</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="metric-value">{{ metrics.total_consumption }} kWh</div>
+                    <div class="metric-label">Consommation totale</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="metric-value">{{ metrics.total_cost }} €</div>
+                    <div class="metric-label">Coût total</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Graphiques d'analyse -->
+        <h2 class="section-title">Analyse graphique</h2>
+        <div class="row">
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line me-2"></i>Évolution de la consommation</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="timeline-chart" class="plotly-graph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar-week me-2"></i>Consommation par jour de semaine</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="weekday-chart" class="plotly-graph"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-bar me-2"></i>Distribution de consommation</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="histogram-chart" class="plotly-graph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Patterns identifiés -->
+        <h2 class="section-title">Patterns de consommation identifiés</h2>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-search me-2"></i>Analyse des patterns</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Ratio weekend/semaine:</strong> 
+                    {% if patterns.weekend_weekday_ratio > 1.1 %}
+                        {{ "%.1f"|format(patterns.weekend_weekday_ratio) }} (consommation weekend plus élevée que semaine)
+                    {% elif patterns.weekend_weekday_ratio < 0.9 %}
+                        {{ "%.1f"|format(patterns.weekend_weekday_ratio) }} (consommation semaine plus élevée que weekend)
+                    {% else %}
+                        {{ "%.1f"|format(patterns.weekend_weekday_ratio) }} (consommation équilibrée)
+                    {% endif %}
+                </p>
+                
+                {% if patterns.peak_times %}
+                <h4 class="mt-4">Pics de consommation détectés:</h4>
+                <ul>
+                    {% for peak in patterns.peak_times[:5] %}
+                    <li>{{ peak.day }} à {{ peak.time }} - {{ "%.1f"|format(peak.consumption) }} kWh</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Recommandations -->
+        <h2 class="section-title">Recommandations personnalisées</h2>
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-lightbulb me-2"></i>Optimisation énergétique</h3>
+            </div>
+            <div class="card-body">
+                {% for recommendation in recommendations %}
+                <div class="recommendation-item">
+                    <p><i class="fas fa-check-circle me-2 text-success"></i> {{ recommendation }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="text-center mt-5 mb-4">
+            <a href="{{ url_for('manual_bill_entry') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-pencil-alt me-2"></i> Créer votre propre analyse
+            </a>
+            <a href="{{ url_for('sample_data') }}" class="btn btn-outline-primary btn-lg ms-3">
+                <i class="fas fa-database me-2"></i> Générer des données d'exemple
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Timeline Chart (Consommation)
+    var timelineData = JSON.parse('{{ plots.consumption | safe }}');
+    Plotly.newPlot('timeline-chart', timelineData.data, timelineData.layout);
+    
+    // Weekday Chart
+    {% if plots.weekday %}
+    var weekdayData = JSON.parse('{{ plots.weekday | safe }}');
+    Plotly.newPlot('weekday-chart', weekdayData.data, weekdayData.layout);
+    {% endif %}
+    
+    // Histogram Chart
+    var histData = JSON.parse('{{ plots.histogram | safe }}');
+    Plotly.newPlot('histogram-chart', histData.data, histData.layout);
+    
+    // Make charts responsive
+    window.addEventListener('resize', function() {
+        Plotly.relayout('timeline-chart', {
+            'xaxis.autorange': true,
+            'yaxis.autorange': true
+        });
+        
+        {% if plots.weekday %}
+        Plotly.relayout('weekday-chart', {
+            'xaxis.autorange': true,
+            'yaxis.autorange': true
+        });
+        {% endif %}
+        
+        Plotly.relayout('histogram-chart', {
+            'xaxis.autorange': true,
+            'yaxis.autorange': true
+        });
+    });
+</script>
+{% endblock %}

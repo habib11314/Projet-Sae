@@ -1,0 +1,7 @@
+FACTURE ENERGETIQUE
+EDF
+Référence client: CLIENT12345
+Numéro de compteur: COMPTEUR98765
+Période: 01/01/2025 - 31/01/2025
+Consommation: 450 kWh
+Montant total TTC: 125.50 €

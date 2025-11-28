@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Avancé - EnergyInsight</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1e7b8b;
+            --secondary-color: #2c3e50;
+            --accent-color: #16a085;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-gray: #f8f9fa;
+            --border-color: #e9ecef;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            background: white;
+            border-radius: 12px;
+            padding: 0;
+            margin: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .dashboard-content {
+            padding: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            text-align: center;
+            transition: box-shadow 0.2s ease;
+        }
+        
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .chart-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .btn-report {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-report:hover {
+            background: #156b7a;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 123, 139, 0.3);
+        }
+        
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .format-badge {
+            background: var(--light-gray);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            display: inline-block;
+        }
+        
+        .recommendations-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .recommendation-item {
+            background: var(--light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .priority-critical {
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .priority-high {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .priority-medium {
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .advanced-analysis-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .efficiency-card {
+            background: var(--light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.25rem;
+            height: 100%;
+        }
+        
+        .cost-analysis-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .info-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .badge {
+            font-weight: 500;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+        }
+        
+        .alert-info {
+            background-color: #e7f4f6;
+            color: #0c5460;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: none;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 1.5rem;
+            }
+            
+            .dashboard-content {
+                padding: 1.5rem;
+            }
+            
+            .header-section {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .metric-card {
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <div class="header-section">
+                    <h1 class="page-title">
+                        <i class="fas fa-chart-line"></i> EnergyInsight Dashboard
+                    </h1>
+                    {% if filename %}
+                    <a href="/generate_report/{{ filename }}" class="btn-report">
+                        <i class="fas fa-file-pdf"></i> Générer Rapport PDF
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Informations sur le format détecté -->
+                {% if analysis and analysis.file_info and analysis.file_info.format_name %}
+                <div class="format-badge">
+                    <i class="fas fa-file-alt"></i> {{ analysis.file_info.format_name }} • {{ analysis.data_format }}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if analysis %}
+
+            <!-- Métriques principales adaptées au format -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">
+                            {% if analysis.basic_stats.total_consumption %}
+                                {{ "%.1f"|format(analysis.basic_stats.total_consumption) }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="metric-label">kWh Total</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">
+                            {% if analysis.basic_stats.avg_consumption %}
+                                {{ "%.1f"|format(analysis.basic_stats.avg_consumption) }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="metric-label">kWh Moyenne</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ analysis.peaks|length if analysis.peaks else 0 }}</div>
+                        <div class="metric-label">Pics Détectés</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">
+                            {% if analysis.cost_analysis and analysis.cost_analysis.cout_total_estime %}
+                                {{ "%.0f"|format(analysis.cost_analysis.cout_total_estime) }}€
+                            {% elif analysis.cost_analysis and analysis.cost_analysis.montant_total_factures %}
+                                {{ "%.0f"|format(analysis.cost_analysis.montant_total_factures) }}€
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </div>
+                        <div class="metric-label">Coût Estimé</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métriques spécialisées selon le format -->
+            {% if analysis.data_format == 'grdf_courbe_charge' and analysis.advanced_stats.hp_hc_analysis %}
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="metric-card" style="border-left: 4px solid var(--warning-color);">
+                        <div class="metric-value">{{ "%.1f"|format(analysis.advanced_stats.hp_hc_analysis.total_hp) }}</div>
+                        <div class="metric-label">kWh Heures Pleines</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-card" style="border-left: 4px solid var(--accent-color);">
+                        <div class="metric-value">{{ "%.1f"|format(analysis.advanced_stats.hp_hc_analysis.total_hc) }}</div>
+                        <div class="metric-label">kWh Heures Creuses</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if analysis.data_format == 'factures_normalisees' %}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="metric-card" style="border-left: 4px solid var(--success-color);">
+                        <div class="metric-value">{{ analysis.basic_stats.nb_factures if analysis.basic_stats.nb_factures else 0 }}</div>
+                        <div class="metric-label">Factures Analysées</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card" style="border-left: 4px solid var(--primary-color);">
+                        <div class="metric-value">{{ analysis.basic_stats.nb_fournisseurs if analysis.basic_stats.nb_fournisseurs else 1 }}</div>
+                        <div class="metric-label">Fournisseurs</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card" style="border-left: 4px solid var(--warning-color);">
+                        <div class="metric-value">
+                            {% if analysis.cost_analysis.cout_moyen_kwh %}
+                                {{ "%.3f"|format(analysis.cost_analysis.cout_moyen_kwh) }}€
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </div>
+                        <div class="metric-label">€/kWh Moyen</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if analysis.data_format == 'ademe_iso50001' %}
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="metric-card" style="border-left: 4px solid var(--success-color);">
+                        <div class="metric-value">{{ analysis.basic_stats.nb_indicateurs if analysis.basic_stats.nb_indicateurs else 0 }}</div>
+                        <div class="metric-label">Indicateurs ISO 50001</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-card" style="border-left: 4px solid var(--primary-color);">
+                        <div class="metric-value">{{ analysis.basic_stats.types_energie if analysis.basic_stats.types_energie else 1 }}</div>
+                        <div class="metric-label">Types d'Énergie</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Graphique principal -->
+            {% if chart_data %}
+            <div class="chart-container">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-area"></i> Évolution de la Consommation
+                </h3>
+                <div id="chart"></div>
+            </div>
+            {% endif %}
+
+            <!-- Analyses Avancées Enrichies -->
+            {% if analysis.data_format == 'grdf_courbe_charge' %}
+                {% if analysis.consumption_patterns or analysis.energy_efficiency %}
+                <div class="advanced-analysis-section">
+                    <h3 class="section-title"><i class="fas fa-chart-area"></i> Analyse Avancée des Courbes de Charge</h3>
+                    
+                    {% if analysis.consumption_patterns %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="efficiency-card">
+                                <h5><i class="fas fa-sun"></i> Patterns de Consommation</h5>
+                                <p><strong>Pic matinal :</strong> {{ analysis.consumption_patterns.pic_matinal.heure }}h - {{ "%.1f"|format(analysis.consumption_patterns.pic_matinal.valeur) }} kW</p>
+                                <p><strong>Charge de base :</strong> {{ "%.1f"|format(analysis.consumption_patterns.charge_base_estimee) }} kW</p>
+                                <p><strong>Facteur de charge :</strong> {{ "%.2f"|format(analysis.consumption_patterns.facteur_charge) }}</p>
+                                <p><strong>Weekend/Semaine :</strong> {{ "%.1f"|format(analysis.consumption_patterns.ratio_weekend_semaine) }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {% if analysis.energy_efficiency %}
+                            <div class="efficiency-card">
+                                <h5><i class="fas fa-battery-three-quarters"></i> Efficacité Énergétique</h5>
+                                <p><strong>Note globale :</strong> {{ "%.1f"|format(analysis.energy_efficiency.performance_globale.note_efficacite) }}/10</p>
+                                <p><strong>Niveau :</strong> {{ analysis.energy_efficiency.performance_globale.niveau }}</p>
+                                <p><strong>Stabilité :</strong> {{ "%.0f"|format(analysis.energy_efficiency.indicateurs_cles.stabilite_consommation * 100) }}%</p>
+                                <p><strong>Optimisation tarifaire :</strong> {{ "%.0f"|format(analysis.energy_efficiency.indicateurs_cles.optimisation_tarifaire * 100) }}%</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endif %}
+
+            {% if analysis.data_format == 'factures_normalisees' %}
+                {% if analysis.supplier_analysis or analysis.contract_optimization %}
+                <div class="advanced-analysis-section">
+                    <h3 class="section-title"><i class="fas fa-building"></i> Analyse Fournisseurs & Contrats</h3>
+                    
+                    {% if analysis.supplier_analysis %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="efficiency-card">
+                                <h5><i class="fas fa-handshake"></i> Analyse Fournisseurs</h5>
+                                <p><strong>Moins cher :</strong> {{ analysis.supplier_analysis.fournisseur_le_moins_cher }}</p>
+                                <p><strong>Plus cher :</strong> {{ analysis.supplier_analysis.fournisseur_le_plus_cher }}</p>
+                                <p><strong>Écart prix :</strong> {{ "%.4f"|format(analysis.supplier_analysis.ecart_prix_max) }}€/kWh</p>
+                                <p><strong>Diversification :</strong> {{ analysis.supplier_analysis.diversification_score }} fournisseurs</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {% if analysis.contract_optimization %}
+                            <div class="efficiency-card">
+                                <h5><i class="fas fa-file-contract"></i> Optimisation Contractuelle</h5>
+                                <p><strong>Prix actuel :</strong> {{ "%.4f"|format(analysis.contract_optimization.prix_actuel_moyen) }}€/kWh</p>
+                                <p><strong>Prix optimisé :</strong> {{ "%.4f"|format(analysis.contract_optimization.prix_optimise_possible) }}€/kWh</p>
+                                <p><strong>Économie possible :</strong> {{ "%.0f"|format(analysis.contract_optimization.potentiel_economie_total) }}€/an</p>
+                                <p><strong>Poids négociation :</strong> {{ analysis.contract_optimization.recommandations_contractuelles.poids_negociation }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endif %}
+
+            {% if analysis.data_format == 'ademe_iso50001' %}
+                {% if analysis.iso_compliance or analysis.performance_tracking %}
+                <div class="advanced-analysis-section">
+                    <h3 class="section-title"><i class="fas fa-certificate"></i> Conformité ISO 50001 & Performance</h3>
+                    
+                    {% if analysis.iso_compliance %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="efficiency-card">
+                                <h5><i class="fas fa-award"></i> Conformité ISO 50001</h5>
+                                <p><strong>Score conformité :</strong> {{ "%.1f"|format(analysis.iso_compliance.score_conformite) }}%</p>
+                                <p><strong>Niveau :</strong> {{ analysis.iso_compliance.niveau_certification }}</p>
+                                <p><strong>Critères respectés :</strong> {{ analysis.iso_compliance.criteres_respectes }}/{{ analysis.iso_compliance.criteres_respectes + analysis.iso_compliance.criteres_manquants }}</p>
+                                {% if analysis.iso_compliance.audit_interne_requis %}
+                                <p class="text-warning"><i class="fas fa-exclamation-triangle"></i> Audit interne requis</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {% if analysis.performance_tracking %}
+                            <div class="efficiency-card">
+                                <h5><i class="fas fa-target"></i> Suivi Performance</h5>
+                                <p><strong>Objectifs atteints :</strong> {{ analysis.performance_tracking.objectifs_atteints }}</p>
+                                <p><strong>Objectifs dépassés :</strong> {{ analysis.performance_tracking.objectifs_depasses }}</p>
+                                <p><strong>Écart moyen :</strong> {{ "%.1f"|format(analysis.performance_tracking.ecart_moyen_pourcent) }}%</p>
+                                <p><strong>Tendance :</strong> {{ analysis.performance_tracking.tendance_globale }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Analyse Économique Enrichie -->
+            {% if analysis.cost_analysis %}
+            <div class="cost-analysis-section">
+                <h3 class="section-title"><i class="fas fa-euro-sign"></i> Analyse Économique Détaillée</h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="efficiency-card">
+                            <h5><i class="fas fa-calculator"></i> Coûts & Budget</h5>
+                            {% if analysis.cost_analysis.cout_mensuel_estime %}
+                            <p><strong>Coût mensuel :</strong> {{ "%.0f"|format(analysis.cost_analysis.cout_mensuel_estime) }}€</p>
+                            {% endif %}
+                            {% if analysis.cost_analysis.cout_annuel_estime %}
+                            <p><strong>Coût annuel :</strong> {{ "%.0f"|format(analysis.cost_analysis.cout_annuel_estime) }}€</p>
+                            {% endif %}
+                            {% if analysis.cost_analysis.cout_kwh_moyen %}
+                            <p><strong>Prix moyen :</strong> {{ "%.3f"|format(analysis.cost_analysis.cout_kwh_moyen) }}€/kWh</p>
+                            {% endif %}
+                            {% if analysis.cost_analysis.montant_total_factures %}
+                            <p><strong>Total factures :</strong> {{ "%.0f"|format(analysis.cost_analysis.montant_total_factures) }}€</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="efficiency-card">
+                            <h5><i class="fas fa-piggy-bank"></i> Économies Possibles</h5>
+                            {% if analysis.cost_analysis.economies_possibles %}
+                            {% if analysis.cost_analysis.economies_possibles.pics_et_pointes > 0 %}
+                            <p><strong>Gestion pics :</strong> {{ "%.0f"|format(analysis.cost_analysis.economies_possibles.pics_et_pointes) }}€/an</p>
+                            {% endif %}
+                            {% if analysis.cost_analysis.economies_possibles.optimisation_hp_hc > 0 %}
+                            <p><strong>Optimisation HP/HC :</strong> {{ "%.0f"|format(analysis.cost_analysis.economies_possibles.optimisation_hp_hc) }}€/an</p>
+                            {% endif %}
+                            {% if analysis.cost_analysis.economies_possibles.total_annuel > 0 %}
+                            <p><strong>Total économies :</strong> {{ "%.0f"|format(analysis.cost_analysis.economies_possibles.total_annuel) }}€/an ({{ "%.1f"|format(analysis.cost_analysis.economies_possibles.pourcentage_total) }}%)</p>
+                            {% endif %}
+                            {% endif %}
+                            {% if analysis.contract_optimization and analysis.contract_optimization.potentiel_economie_total > 0 %}
+                            <p><strong>Optimisation contrats :</strong> {{ "%.0f"|format(analysis.contract_optimization.potentiel_economie_total) }}€/an</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recommandations adaptées au format -->
+            {% if analysis.recommendations %}
+            <div class="recommendations-section">
+                <h3 class="section-title">
+                    <i class="fas fa-lightbulb"></i> Recommandations Spécialisées
+                    {% if analysis.data_format == 'grdf_courbe_charge' %}
+                        - Courbes de Charge
+                    {% elif analysis.data_format == 'factures_normalisees' %}
+                        - Optimisation Tarifaire
+                    {% elif analysis.data_format == 'ademe_iso50001' %}
+                        - Management Énergétique ISO 50001
+                    {% endif %}
+                </h3>
+                
+                {% if analysis.recommendations %}
+                    {% for rec in analysis.recommendations %}
+                    <div class="recommendation-item mb-4 p-3 border-left-4 priority-{{ rec.priority }}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="mb-0">
+                                {% if rec.priority == 'critical' %}
+                                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                                {% elif rec.priority == 'high' %}
+                                    <i class="fas fa-exclamation-circle text-warning"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle text-info"></i>
+                                {% endif %}
+                                {{ rec.category if rec.category else "Recommandation" }}
+                            </h5>
+                            <span class="badge bg-{{ 'danger' if rec.priority == 'critical' else 'warning' if rec.priority == 'high' else 'info' if rec.priority == 'medium' else 'success' }}">
+                                {{ rec.priority.upper() if rec.priority else 'INFO' }}
+                            </span>
+                        </div>
+                        
+                        <p class="mb-3">{{ rec.action if rec.action else rec.message if rec.message else "Action recommandée" }}</p>
+                        
+                        {% if rec.solutions %}
+                        <div class="solutions-section mb-3">
+                            <h6 class="text-primary"><i class="fas fa-tools"></i> Solutions concrètes :</h6>
+                            <ul class="list-group list-group-flush">
+                                {% for solution in rec.solutions %}
+                                <li class="list-group-item border-0 px-0 py-1">
+                                    <i class="fas fa-arrow-right text-primary me-2"></i>{{ solution }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        {% if rec.roi_estime %}
+                        <div class="roi-section">
+                            <span class="badge bg-success">
+                                <i class="fas fa-chart-line"></i> ROI estimé : {{ rec.roi_estime }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Analyse en cours... Les recommandations apparaîtront après traitement complet des données.
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Informations de debug et format -->
+            <div class="info-card">
+                <h6><i class="fas fa-info-circle"></i> Informations Techniques</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            <strong>Format détecté :</strong> {{ analysis.data_format if analysis.data_format else 'Standard' }}<br>
+                            <strong>Fichier analysé :</strong> {{ filename if filename else 'N/A' }}<br>
+                            {% if analysis.columns %}
+                            <strong>Colonnes standardisées :</strong> {{ analysis.columns|join(', ') }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            {% if analysis.basic_stats %}
+                            <strong>Points de mesure :</strong> 
+                            {% if analysis.basic_stats.nb_points_mesure %}
+                                {{ analysis.basic_stats.nb_points_mesure }}
+                            {% elif analysis.basic_stats.nb_factures %}
+                                {{ analysis.basic_stats.nb_factures }} factures
+                            {% elif analysis.basic_stats.nb_indicateurs %}
+                                {{ analysis.basic_stats.nb_indicateurs }} indicateurs
+                            {% else %}
+                                N/A
+                            {% endif %}<br>
+                            {% endif %}
+                            {% if analysis.basic_stats and analysis.basic_stats.periode_analyse %}
+                            <strong>Période :</strong> {{ analysis.basic_stats.periode_analyse }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section analyses avancées par format -->
+            {% if analysis.advanced_stats %}
+            <div class="info-card" style="background: var(--primary-color); color: white;">
+                <h6><i class="fas fa-chart-bar"></i> Analyses Avancées</h6>
+                
+                {% if analysis.data_format == 'grdf_courbe_charge' and analysis.advanced_stats.hp_hc_analysis %}
+                <div class="mb-2">
+                    <strong>Répartition HP/HC :</strong> 
+                    {{ "%.1f"|format(analysis.advanced_stats.hp_hc_analysis.pourcentage_hp) }}% HP / 
+                    {{ "%.1f"|format(analysis.advanced_stats.hp_hc_analysis.pourcentage_hc) }}% HC
+                </div>
+                <div>
+                    <strong>Ratio HP/HC :</strong> {{ "%.2f"|format(analysis.advanced_stats.hp_hc_analysis.ratio_hp_hc) }}
+                </div>
+                {% endif %}
+
+                {% if analysis.data_format == 'factures_normalisees' and analysis.advanced_stats.analyse_fournisseurs %}
+                <div>
+                    <strong>Analyse par fournisseur :</strong>
+                    <ul class="mb-0 mt-2">
+                    {% for fournisseur_name, fournisseur_data in analysis.advanced_stats.analyse_fournisseurs.items() %}
+                        <li>{{ fournisseur_name }} : {{ "%.0f"|format(fournisseur_data.consumption_total) }} kWh ({{ fournisseur_data.nb_factures }} facture(s))</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if analysis.data_format == 'ademe_iso50001' and analysis.advanced_stats.performance_objectifs %}
+                <div class="mb-2">
+                    <strong>Performance vs Objectifs :</strong>
+                    {{ analysis.advanced_stats.performance_objectifs.objectifs_atteints }} réussis / 
+                    {{ analysis.advanced_stats.performance_objectifs.objectifs_depasses }} dépassés
+                </div>
+                <div>
+                    <strong>Écart moyen :</strong> {{ "%.1f"|format(analysis.advanced_stats.performance_objectifs.ecart_moyen_pourcent) }}%
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            </div> <!-- Fin dashboard-content -->
+            
+            {% else %}
+            <div class="dashboard-content">
+                <div class="alert alert-warning">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Aucune analyse disponible</h4>
+                    <p>Les données n'ont pas pu être analysées. Veuillez vérifier le format de votre fichier.</p>
+                    <a href="/upload" class="btn-report">
+                        <i class="fas fa-upload"></i> Uploader un nouveau fichier
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    {% if chart_data %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var chartData = {{ chart_data|safe }};
+            Plotly.newPlot('chart', chartData.data, chartData.layout);
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

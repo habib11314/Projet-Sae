@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Avancé - EnergyInsight</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2E86AB;
+            --secondary-color: #A23B72;
+            --accent-color: #F18F01;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .dashboard-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .btn-report {
+            background: linear-gradient(135deg, #F18F01 0%, #C73E1D 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(241, 143, 1, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-report:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(241, 143, 1, 0.4);
+            color: white;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .recommendations {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .recommendation-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="dashboard-container">
+            <div class="header-section">
+                <h1 class="display-5 fw-bold text-primary mb-0">
+                    <i class="fas fa-chart-line"></i> Analyse Énergétique Avancée
+                </h1>
+                {% if filename %}
+                <a href="{{ url_for('generate_report', filename=filename) }}" class="btn btn-report">
+                    <i class="fas fa-file-pdf"></i> Générer Rapport PDF
+                </a>
+                {% endif %}
+            </div>
+
+            {% if analysis %}
+            
+            <!-- Indicateur de format détecté -->
+            <div class="alert alert-info mb-4">
+                <h6><i class="fas fa-info-circle"></i> Format de données détecté</h6>
+                <p class="mb-0">
+                    <strong>Type :</strong> 
+                    {% if analysis.data_format == 'enterprise_advanced' %}
+                        <span class="badge bg-success">Format Entreprise Avancé</span>
+                        <small class="text-muted">HP/HC, Zones, Facturation</small>
+                    {% elif analysis.data_format == 'standard' %}
+                        <span class="badge bg-primary">Format Standard</span>
+                        <small class="text-muted">Date, Consommation</small>
+                    {% else %}
+                        <span class="badge bg-warning">Format Basique</span>
+                        <small class="text-muted">{{ analysis.data_format }}</small>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <!-- Métriques principales -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ "%.1f"|format(analysis.total_consumption) }}</div>
+                        <div class="metric-label">kWh Total</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ "%.1f"|format(analysis.avg_consumption) }}</div>
+                        <div class="metric-label">kWh Moyenne</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ analysis.peaks|length }}</div>
+                        <div class="metric-label">Pics Détectés</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ "%.1f"|format(analysis['statistics']['efficiency_score']) }}</div>
+                        <div class="metric-label">Score Efficacité</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphique principal - Évolution de la consommation -->
+            {% if chart_data %}
+            <div class="chart-container">
+                <h3 class="mb-4">
+                    <i class="fas fa-chart-area"></i> Évolution de la Consommation
+                </h3>
+                <div id="chart"></div>
+            </div>
+            {% endif %}
+
+            <!-- Analyses spécifiques format entreprise -->
+            {% if analysis.data_format == 'enterprise_advanced' %}
+            
+            <!-- Analyse HP/HC -->
+            {% if analysis.hp_hc_analysis %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-clock"></i> Analyse Heures Pleines / Heures Creuses</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h6 class="text-primary">Heures Pleines</h6>
+                                        <h3 class="text-primary">{{ "%.1f"|format(analysis['hp_hc_analysis']['total_hp']) }} kWh</h3>
+                                        <p class="text-muted">Moyenne: {{ "%.1f"|format(analysis['hp_hc_analysis']['avg_hp']) }} kWh</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h6 class="text-success">Heures Creuses</h6>
+                                        <h3 class="text-success">{{ "%.1f"|format(analysis['hp_hc_analysis']['total_hc']) }} kWh</h3>
+                                        <p class="text-muted">Moyenne: {{ "%.1f"|format(analysis['hp_hc_analysis']['avg_hc']) }} kWh</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h6 class="text-info">Ratio HP/HC</h6>
+                                        <h3 class="text-info">{{ "%.2f"|format(analysis['hp_hc_analysis']['ratio_hp_hc']) }}</h3>
+                                        <div class="progress mt-2">                            <div class="progress-bar" role="progressbar" style="width: {{ analysis['hp_hc_analysis']['efficiency_score'] }}%">
+                                {{ analysis['hp_hc_analysis']['efficiency_score'] }}%
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Score d'efficacité</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if analysis['hp_hc_analysis']['recommendations'] %}
+                            <div class="mt-3">
+                                <h6>Recommandations HP/HC :</h6>
+                                {% for rec in analysis['hp_hc_analysis']['recommendations'] %}
+                                <div class="alert alert-info">{{ rec }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Analyse par zones -->
+            {% if analysis['zone_analysis'] %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-map-marked-alt"></i> Analyse par Zones</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h6 class="text-success">Plus consommatrice</h6>
+                                        <h5 class="text-success">{{ analysis['zone_analysis']['most_consuming_zone'] }}</h5>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h6 class="text-info">Moins consommatrice</h6>
+                                        <h5 class="text-info">{{ analysis['zone_analysis']['least_consuming_zone'] }}</h5>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h6 class="text-primary">Zones totales</h6>
+                                        <h5 class="text-primary">{{ analysis['zone_analysis']['total_zones'] }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Zone</th>
+                                            <th>Consommation Totale</th>
+                                            <th>Consommation Moyenne</th>
+                                            <th>Nombre de relevés</th>
+                                            <th>Efficacité</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for zone, stats in analysis['zone_analysis']['zones_summary'].items() %}
+                                        <tr>
+                                            <td><strong>{{ zone }}</strong></td>
+                                            <td>{{ "%.1f"|format(stats.total_consumption) }} kWh</td>
+                                            <td>{{ "%.1f"|format(stats.avg_consumption) }} kWh</td>
+                                            <td>{{ stats.count_readings }}</td>
+                                            <td>
+                                                {% set efficiency = analysis['zone_analysis']['zone_efficiency'].get(zone, 'N/A') %}
+                                                <span class="badge 
+                                                    {% if efficiency == 'Optimale' %}bg-success
+                                                    {% elif efficiency == 'Modérée' %}bg-warning
+                                                    {% else %}bg-danger{% endif %}">
+                                                    {{ efficiency }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Analyse de facturation -->
+            {% if analysis['billing_analysis'] %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-euro-sign"></i> Analyse Économique</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h6 class="text-primary">Coût Total</h6>
+                                        <h3 class="text-primary">{{ "%.2f"|format(analysis['billing_analysis']['total_cost']) }} €</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h6 class="text-success">Coût Moyen/Jour</h6>
+                                        <h3 class="text-success">{{ "%.2f"|format(analysis['billing_analysis']['avg_daily_cost']) }} €</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h6 class="text-info">Projection Mensuelle</h6>
+                                        <h3 class="text-info">{{ "%.2f"|format(analysis['billing_analysis']['projected_monthly']) }} €</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h6 class="text-warning">Projection Annuelle</h6>
+                                        <h3 class="text-warning">{{ "%.2f"|format(analysis['billing_analysis']['projected_yearly']) }} €</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <p><strong>Variabilité des coûts:</strong> 
+                                        <span class="badge 
+                                            {% if analysis['billing_analysis']['cost_variability'] == 'faible' %}bg-success
+                                            {% elif analysis['billing_analysis']['cost_variability'] == 'modérée' %}bg-warning
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ analysis['billing_analysis']['cost_variability']|title }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Efficacité des coûts:</strong>
+                                        <span class="badge 
+                                            {% if analysis['billing_analysis']['cost_efficiency'] == 'excellent' %}bg-success
+                                            {% elif analysis['billing_analysis']['cost_efficiency'] == 'good' %}bg-primary
+                                            {% else %}bg-warning{% endif %}">
+                                            {% if analysis['billing_analysis']['cost_efficiency'] == 'excellent' %}Excellente
+                                            {% elif analysis['billing_analysis']['cost_efficiency'] == 'good' %}Bonne
+                                            {% else %}À améliorer{% endif %}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% endif %}
+
+            <!-- Recommandations -->
+            {% if analysis.recommendations %}
+            <div class="recommendations">
+                <h3 class="mb-4">
+                    <i class="fas fa-lightbulb"></i> Recommandations Personnalisées
+                </h3>
+                {% for rec in analysis.recommendations %}
+                <div class="recommendation-item">
+                    <h5>
+                        <i class="fas fa-arrow-right"></i> {{ rec.title }}
+                        <span class="badge bg-{{ 'danger' if rec.priority == 'high' else 'warning' if rec.priority == 'medium' else 'success' }}">
+                            {{ rec.priority.upper() }}
+                        </span>
+                    </h5>
+                    <p class="mb-2">{{ rec.message }}</p>
+                    <p class="mb-1"><strong>Action :</strong> {{ rec.action }}</p>
+                    {% if rec.savings_potential %}
+                    <p class="mb-0"><strong>Économies potentielles :</strong> {{ rec.savings_potential }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Information de debug -->
+            <div class="mt-4 p-3 bg-light rounded">
+                <h6><i class="fas fa-bug"></i> Informations de debug</h6>
+                <small class="text-muted">
+                    <strong>Format détecté:</strong> {{ analysis.data_format }}<br>
+                    <strong>Colonnes disponibles:</strong> {{ analysis['file_info']['columns_detected'] if analysis['file_info'] else 'N/A' }}<br>
+                    <strong>Analyses disponibles:</strong> 
+                    {% if analysis.hp_hc_analysis %}HP/HC {% endif %}
+                    {% if analysis.zone_analysis %}Zones {% endif %}
+                    {% if analysis['billing_analysis'] %}Facturation {% endif %}
+                </small>
+            </div>
+            
+            {% else %}
+            <div class="alert alert-warning">
+                <h4><i class="fas fa-exclamation-triangle"></i> Aucune analyse disponible</h4>
+                <p>Les données n'ont pas pu être analysées. Veuillez vérifier le format de votre fichier.</p>
+                <a href="{{ url_for('upload_file') }}" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Uploader un nouveau fichier
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    {% if chart_data %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var chartData = {{ chart_data|safe }};
+            Plotly.newPlot('chart', chartData.data, chartData.layout);
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .cost-card {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .environmental-card {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .solution-card {
+            background: linear-gradient(135deg, #fd7e14 0%, #e55100 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .btn-report {
+            background: linear-gradient(135deg, #F18F01 0%, #C73E1D 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(241, 143, 1, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-report:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(241, 143, 1, 0.4);
+            color: white;
+        }
+        
+        .recommendation-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .badge-priority {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+        }
+        
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .tab-content {
+            padding: 2rem 0;
+        }
+        
+        .nav-tabs .nav-link {
+            border-radius: 25px 25px 0 0;
+            margin-right: 0.5rem;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        @media (max-width: 768px) {
+            .header-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .metric-value {
+                font-size: 2rem;
+            }
+        }
+        
+        .efficiency-gauge {
+            position: relative;
+            width: 150px;
+            height: 75px;
+            margin: 0 auto;
+        }
+        
+        .step-item {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+        }
+        
+        .comparison-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .comparison-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="dashboard-container">
+            <div class="header-section">
+                <h1 class="display-5 fw-bold text-primary mb-0">
+                    <i class="fas fa-chart-line"></i> Analyse Énergétique Avancée
+                </h1>
+                {% if filename %}
+                <a href="{{ url_for('generate_report', filename=filename) }}" class="btn btn-report">
+                    <i class="fas fa-file-pdf"></i> Générer Rapport PDF Complet
+                </a>
+                {% endif %}
+            </div>
+
+            {% if analysis %}
+            
+            <!-- Navigation par onglets -->
+            <ul class="nav nav-tabs" id="analysisTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">
+                        <i class="fas fa-tachometer-alt"></i> Vue d'ensemble
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="detailed-tab" data-bs-toggle="tab" data-bs-target="#detailed" type="button">
+                        <i class="fas fa-chart-bar"></i> Analyse détaillée
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="costs-tab" data-bs-toggle="tab" data-bs-target="#costs" type="button">
+                        <i class="fas fa-euro-sign"></i> Coûts & ROI
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="environment-tab" data-bs-toggle="tab" data-bs-target="#environment" type="button">
+                        <i class="fas fa-leaf"></i> Impact environnemental
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="solutions-tab" data-bs-toggle="tab" data-bs-target="#solutions" type="button">
+                        <i class="fas fa-tools"></i> Solutions
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="analysisTabContent">
+                
+                <!-- ONGLET VUE D'ENSEMBLE -->
+                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                    
+                    <!-- Informations du fichier -->
+                    {% if analysis.file_info %}
+                    <div class="info-card">
+                        <h4><i class="fas fa-file-alt"></i> Informations du fichier</h4>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Nom:</strong> {{ filename }}<br>
+                                <strong>Enregistrements:</strong> {{ analysis['file_info']['total_records'] }}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Période:</strong><br>
+                                Du {{ analysis['file_info']['date_range']['start'] }}<br>
+                                Au {{ analysis['file_info']['date_range']['end'] }}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Durée:</strong> {{ analysis['file_info']['date_range']['duration_days'] }} jours<br>
+                                <strong>Qualité des données:</strong> {{ "%.1f"|format(analysis['file_info']['data_quality']['quality_score']) }}/100
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Dernière analyse:</strong> {{ current_time }}<br>
+                                <strong>Type:</strong> Analyse IA avancée
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Métriques principales -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-value">{{ "%.1f"|format(analysis.total_consumption) }}</div>
+                                <div class="metric-label">kWh Total</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-value">{{ "%.1f"|format(analysis.avg_consumption) }}</div>
+                                <div class="metric-label">kWh Moyenne/jour</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-value">{{ analysis.peaks|length }}</div>
+                                <div class="metric-label">Pics Détectés</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-value">{{ "%.0f"|format(analysis['statistics']['efficiency_score']) }}</div>
+                                <div class="metric-label">Score Efficacité</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graphique principal -->
+                    {% if chart_json %}
+                    <div class="chart-container">
+                        <h3 class="mb-4">
+                            <i class="fas fa-chart-area"></i> Évolution de la Consommation
+                        </h3>
+                        <div id="chart"></div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Recommandations prioritaires -->
+                    {% if analysis.recommendations %}
+                    <div class="dashboard-container">
+                        <h3 class="mb-4">
+                            <i class="fas fa-exclamation-triangle text-warning"></i> Recommandations Prioritaires
+                        </h3>
+                        {% for rec in analysis.recommendations[:3] %}
+                        <div class="alert alert-{{ 'danger' if rec.priority == 'high' else 'warning' if rec.priority == 'medium' else 'info' }}">
+                            <h5>
+                                <i class="fas fa-{{ 'exclamation-triangle' if rec.priority == 'high' else 'info-circle' }}"></i>
+                                {{ rec.title }}
+                                <span class="badge bg-{{ 'danger' if rec.priority == 'high' else 'warning' if rec.priority == 'medium' else 'info' }} badge-priority">
+                                    {{ rec.priority.upper() }}
+                                </span>
+                            </h5>
+                            <p class="mb-2">{{ rec.description }}</p>
+                            <p class="mb-1"><strong>Impact:</strong> {{ rec.impact }}</p>
+                            <p class="mb-0"><strong>Économies potentielles:</strong> {{ rec.savings_potential }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- ONGLET ANALYSE DÉTAILLÉE -->
+                <div class="tab-pane fade" id="detailed" role="tabpanel">
+                    
+                    <!-- Statistiques avancées -->
+                    {% if analysis.advanced_stats %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="dashboard-container">
+                                <h4><i class="fas fa-chart-bar"></i> Statistiques Avancées</h4>
+                                <table class="table table-striped">
+                                    <tr>
+                                        <td><strong>Médiane</strong></td>
+                                        <td>{{ "%.1f"|format(analysis['basic_stats']['median_consumption']) }} kWh</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Quartile 1 (Q1)</strong></td>
+                                        <td>{{ "%.1f"|format(analysis['advanced_stats']['quartiles']['q1']) }} kWh</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Quartile 3 (Q3)</strong></td>
+                                        <td>{{ "%.1f"|format(analysis['advanced_stats']['quartiles']['q3']) }} kWh</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Écart interquartile</strong></td>
+                                        <td>{{ "%.1f"|format(analysis['advanced_stats']['quartiles']['iqr']) }} kWh</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Asymétrie (Skewness)</strong></td>
+                                        <td>{{ "%.2f"|format(analysis['advanced_stats']['distribution']['skewness']) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Aplatissement (Kurtosis)</strong></td>
+                                        <td>{{ "%.2f"|format(analysis['advanced_stats']['distribution']['kurtosis']) }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="dashboard-container">
+                                <h4><i class="fas fa-bullseye"></i> Métriques d'Efficacité</h4>
+                                <div class="text-center mb-3">
+                                    <div class="efficiency-gauge">
+                                        <canvas id="efficiencyGauge" width="150" height="75"></canvas>
+                                    </div>
+                                    <h5>{{ analysis['advanced_stats']['efficiency_metrics']['consistency_rating'] }}</h5>
+                                </div>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td>Score de stabilité</td>
+                                        <td><strong>{{ "%.0f"|format(analysis['advanced_stats']['efficiency_metrics']['stability_score']) }}/100</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Score de prédictibilité</td>
+                                        <td><strong>{{ "%.0f"|format(analysis['advanced_stats']['efficiency_metrics']['predictability_score']) }}/100</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Score global</td>
+                                        <td><strong>{{ "%.0f"|format(analysis['advanced_stats']['efficiency_metrics']['overall_score']) }}/100</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Benchmarking -->
+                    {% if analysis.benchmarking %}
+                    <div class="dashboard-container">
+                        <h4><i class="fas fa-chart-line"></i> Comparaison Sectorielle</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Secteur estimé:</strong> {{ analysis.benchmarking['sector_comparison']['secteur_estime'] if analysis.benchmarking['sector_comparison'] else 'Non spécifié' }}</p>
+                                <p><strong>Performance:</strong> 
+                                    <span class="badge bg-{{ 'success' if analysis.benchmarking['efficiency_class'] == 'A' else 'primary' if analysis.benchmarking['efficiency_class'] == 'B' else 'warning' if analysis.benchmarking['efficiency_class'] == 'C' else 'danger' }}">
+                                        Classe {{ analysis.benchmarking['efficiency_class'] }}
+                                    </span>
+                                </p>
+                                <p><strong>Percentile:</strong> {{ "%.0f"|format(analysis.benchmarking['percentile_ranking']) }}%</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Positionnement sectoriel:</strong></p>
+                                <p><strong>Votre consommation:</strong> {{ "%.0f"|format(analysis.benchmarking['sector_comparison']['votre_consommation']) }} kWh</p>
+                                <p><strong>Moyenne du secteur:</strong> {{ analysis.benchmarking['sector_comparison']['moyenne_secteur'] }} kWh</p>
+                                <p><strong>Meilleure pratique:</strong> {{ analysis.benchmarking['sector_comparison']['meilleure_pratique'] }} kWh</p>
+                                <p><strong>Position:</strong> {{ analysis.benchmarking['sector_comparison']['position_relative'] }} de la moyenne</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Analyse des pics détaillée -->
+                    {% if analysis.peaks %}
+                    <div class="dashboard-container">
+                        <h4><i class="fas fa-exclamation-triangle text-warning"></i> Analyse Détaillée des Pics</h4>
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 class="text-danger">{{ analysis.peaks|selectattr("severity", "equalto", "critique")|list|length }}</h5>
+                                    <small>Pics critiques</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 class="text-warning">{{ analysis.peaks|selectattr("severity", "equalto", "élevé")|list|length }}</h5>
+                                    <small>Pics élevés</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 class="text-info">{{ analysis.peaks|selectattr("severity", "equalto", "modéré")|list|length }}</h5>
+                                    <small>Pics modérés</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 class="text-success">{{ "%.1f"|format(analysis.peaks|map(attribute="impact_cost")|sum) }}€</h5>
+                                    <small>Surcoût total</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            {% for peak in analysis.peaks %}
+                            <div class="alert alert-{{ 'danger' if peak.severity == 'critique' else 'warning' if peak.severity == 'élevé' else 'info' }} py-2">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3">
+                                        <strong>{{ peak.date }}</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ "%.1f"|format(peak.value) }} kWh
+                                    </div>
+                                    <div class="col-md-3">
+                                        +{{ "%.1f"|format(peak.percentage_above_avg) }}%
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-{{ 'danger' if peak.severity == 'critique' else 'warning' if peak.severity == 'élevé' else 'info' }}">
+                                            {{ peak.severity.title() }}
+                                        </span>
+                                        <small class="text-muted">{{ "%.1f"|format(peak.impact_cost) }}€</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- ONGLET COÛTS & ROI -->
+                <div class="tab-pane fade" id="costs" role="tabpanel">
+                    {% if analysis.cost_analysis %}
+                    
+                    <!-- Analyse financière -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="cost-card">
+                                <h4><i class="fas fa-calculator"></i> Analyse Financière Actuelle</h4>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Coût total période:</strong><br>
+                                        <h5>{{ "%.0f"|format(analysis['cost_analysis']['total_cost']) }}€</h5>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Coût par jour:</strong><br>
+                                        <h5>{{ "%.2f"|format(analysis['cost_analysis']['average_daily_cost']) }}€</h5>
+                                    </div>
+                                </div>
+                                <hr style="border-color: rgba(255,255,255,0.3);">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small>Coût de base: {{ "%.0f"|format(analysis['cost_analysis']['cost_breakdown']['consommation_base']) }}€</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small>Surcoût pics: {{ "%.0f"|format(analysis['cost_analysis']['cost_breakdown']['pics_consommation']) }}€</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="cost-card">
+                                <h4><i class="fas fa-chart-line"></i> Projection Annuelle</h4>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Coût annuel estimé:</strong><br>
+                                        <h5>{{ "%.0f"|format(analysis.cost_analysis.annual_projection) }}€</h5>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Économies potentielles:</strong><br>
+                                        <h5 class="text-warning">{{ "%.0f"|format(analysis['cost_analysis']['potential_savings']['total_savings']) }}€</h5>
+                                    </div>
+                                </div>
+                                <hr style="border-color: rgba(255,255,255,0.3);">
+                                <small>Consommation estimée: {{ "%.0f"|format(analysis['total_consumption'] * 365 / analysis['file_info']['date_range']['duration_days'] if analysis['file_info']['date_range']['duration_days'] > 0 else 0) }} kWh/an</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Répartition des coûts -->
+                    <div class="dashboard-container">
+                        <h4><i class="fas fa-pie-chart"></i> Répartition des Coûts</h4>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 class="text-primary">{{ "%.0f"|format(analysis['cost_analysis']['cost_breakdown']['consommation_base']) }}€</h5>
+                                    <small>Coût énergie</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 class="text-warning">{{ "%.0f"|format(analysis['cost_analysis']['cost_breakdown']['pics_consommation']) }}€</h5>
+                                    <small>Pénalités pics</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 class="text-info">{{ "%.0f"|format(analysis['cost_analysis']['total_cost'] * 0.1) }}€</h5>
+                                    <small>Frais réseau</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 class="text-secondary">{{ "%.0f"|format(analysis['cost_analysis']['total_cost'] * 0.05) }}€</h5>
+                                    <small>Taxes</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- ONGLET IMPACT ENVIRONNEMENTAL -->
+                <div class="tab-pane fade" id="environment" role="tabpanel">
+                    {% if analysis.environmental_impact %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="environmental-card">
+                                <h4><i class="fas fa-leaf"></i> Empreinte Carbone</h4>
+                                <div class="text-center">
+                                    <h3>{{ "%.0f"|format(analysis['environmental_impact']['annual_co2_projection']) }} kg CO₂/an</h3>
+                                    <p class="mb-2">
+                                        <span class="badge bg-{{ 'success' if analysis['environmental_impact']['environmental_rating'] == 'A' else 'primary' if analysis['environmental_impact']['environmental_rating'] == 'B' else 'warning' if analysis['environmental_impact']['environmental_rating'] == 'C' else 'danger' }}">
+                                            {{ analysis['environmental_impact']['environmental_rating'] }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <hr style="border-color: rgba(255,255,255,0.3);">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <i class="fas fa-tree fa-2x mb-2"></i><br>
+                                        <strong>{{ analysis['environmental_impact']['equivalent_trees'] }}</strong><br>
+                                        <small>Arbres à planter</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <i class="fas fa-car fa-2x mb-2"></i><br>
+                                        <strong>{{ analysis['environmental_impact']['equivalent_car_km'] }}</strong><br>
+                                        <small>km en voiture</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="environmental-card">
+                                <h4><i class="fas fa-recycle"></i> Potentiel de Réduction</h4>
+                                <div class="text-center">
+                                    <h3 class="text-warning">{{ "%.0f"|format(analysis['environmental_impact']['improvement_potential']['co2_reduction_optimisation'] + analysis['environmental_impact']['improvement_potential']['co2_reduction_peaks']) }} kg CO₂/an</h3>
+                                    <p>Objectif de réduction</p>
+                                </div>
+                                <hr style="border-color: rgba(255,255,255,0.3);">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <strong>Économies CO₂ potentielles:</strong><br>
+                                        <h5>{{ "%.0f"|format(analysis['environmental_impact']['improvement_potential']['co2_reduction_optimisation'] + analysis['environmental_impact']['improvement_potential']['co2_reduction_peaks']) }} kg CO₂/an</h5>
+                                        <small>Équivalent à {{ analysis['environmental_impact']['improvement_potential']['trees_equivalent_saved'] }} arbres</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- ONGLET SOLUTIONS -->
+                <div class="tab-pane fade" id="solutions" role="tabpanel">
+                    {% if analysis.solutions %}
+                    
+                    <div class="row">
+                        {% for solution in analysis.solutions %}
+                        <div class="col-md-6 mb-4">
+                            <div class="solution-card h-100">
+                                <h5><i class="fas fa-lightbulb"></i> {{ solution.title }}</h5>
+                                <p class="mb-3">{{ solution.description }}</p>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small><strong>Durée:</strong> {{ solution.duration }}</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small><strong>Complexité:</strong> {{ solution.complexity }}</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small><strong>Investissement:</strong> {{ solution.investment }}</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small><strong>ROI:</strong> {{ solution.roi }}</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <strong>Économies annuelles: {{ solution.annual_savings }}</strong>
+                                </div>
+                                
+                                <div>
+                                    <strong>Plan d'action:</strong>
+                                    <ol class="mt-2">
+                                        {% for step in solution.steps %}
+                                        <li class="small">{{ step }}</li>
+                                        {% endfor %}
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Recommandations complètes -->
+                    {% if analysis.recommendations %}
+                    <div class="dashboard-container">
+                        <h4><i class="fas fa-tasks"></i> Recommandations Détaillées</h4>
+                        {% for rec in analysis.recommendations %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if rec.priority == 'high' else 'info-circle' }}"></i>
+                                    {{ rec.title }}
+                                    <span class="badge bg-{{ 'danger' if rec.priority == 'high' else 'warning' if rec.priority == 'medium' else 'info' }} float-end">
+                                        {{ rec.category if rec.category else 'Général' }}
+                                    </span>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>{{ rec.description }}</p>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>Impact:</strong> {{ rec.impact }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Économies:</strong> {{ rec.savings_potential }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Coût:</strong> {{ rec.implementation_cost }}
+                                    </div>
+                                </div>
+                                {% if rec.solutions %}
+                                <div class="mt-3">
+                                    <strong>Solutions recommandées:</strong>
+                                    <ul class="mt-2">
+                                        {% for sol in rec.solutions %}
+                                        <li>{{ sol }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Action rapide -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('upload_file') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-upload"></i> Analyser un autre fichier
+                </a>
+            </div>
+            
+            {% else %}
+            <div class="alert alert-warning">
+                <h4><i class="fas fa-exclamation-triangle"></i> Aucune analyse disponible</h4>
+                <p>Les données n'ont pas pu être analysées. Veuillez vérifier le format de votre fichier.</p>
+                <a href="{{ url_for('upload_file') }}" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Uploader un nouveau fichier
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    {% if chart_json %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var chartData = {{ chart_json|safe }};
+            Plotly.newPlot('chart', chartData.data, chartData.layout);
+        });
+    </script>
+    {% endif %}
+    
+    <script>
+        // Graphique d'efficacité
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('efficiencyGauge');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                const score = {{ analysis['statistics']['efficiency_score'] if analysis and analysis['statistics'] else 0 }};
+                
+                // Dessiner le gauge
+                const centerX = 75;
+                const centerY = 65;
+                const radius = 50;
+                
+                // Arc de fond
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI);
+                ctx.lineWidth = 10;
+                ctx.strokeStyle = '#e9ecef';
+                ctx.stroke();
+                
+                // Arc de score
+                const angle = Math.PI + (score / 100) * Math.PI;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, Math.PI, angle);
+                ctx.lineWidth = 10;
+                ctx.strokeStyle = score >= 80 ? '#28a745' : score >= 60 ? '#ffc107' : '#dc3545';
+                ctx.stroke();
+                
+                // Texte du score
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(Math.round(score) + '%', centerX, centerY + 5);
+            }
+        });
+    </script>
+</body>
+</html>

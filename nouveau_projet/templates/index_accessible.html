@@ -1,0 +1,124 @@
+{% extends 'layout_accessible.html' %}
+
+{% block title %}StatEnergie - Analyse Énergétique Simplifiée{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1 class="display-4 mb-4">Bienvenue sur StatEnergie</h1>
+        <p class="lead fs-3">Solution simplifiée pour comprendre votre consommation d'énergie</p>
+        <p class="fs-4 text-muted">Analysez facilement vos factures d'électricité et de gaz</p>
+    </div>
+
+    <!-- Options principales en grand format -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body p-5">
+                    <i class="fas fa-pencil-alt fa-4x mb-4" style="color: var(--primary-color);"></i>
+                    <h3 class="card-title mb-3">Saisie manuelle</h3>
+                    <p class="card-text fs-5 mb-4">Entrez les informations de votre facture pour une analyse personnalisée</p>
+                    <a href="{{ url_for('manual_bill_entry') }}" class="btn btn-primary btn-lg">
+                        Commencer
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body p-5">
+                    <i class="fas fa-lightbulb fa-4x mb-4" style="color: var(--warning-color);"></i>
+                    <h3 class="card-title mb-3">Voir un exemple</h3>
+                    <p class="card-text fs-5 mb-4">Découvrez comment fonctionne l'analyse avec un exemple préparé</p>
+                    <a href="{{ url_for('example') }}" class="btn btn-warning btn-lg">
+                        Voir l'exemple
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guide d'utilisation simplifié -->
+    <div class="content-section mb-5">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-question-circle me-2"></i>
+            Comment utiliser cette application ?
+        </h2>
+        
+        <div class="row mt-4">
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-light p-3 rounded-circle d-inline-flex justify-content-center align-items-center" style="width: 100px; height: 100px;">
+                        <span class="fs-1 fw-bold text-primary">1</span>
+                    </div>
+                    <h4 class="mt-3">Saisissez vos données</h4>
+                    <p class="fs-5">Entrez les informations de votre facture d'énergie</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-light p-3 rounded-circle d-inline-flex justify-content-center align-items-center" style="width: 100px; height: 100px;">
+                        <span class="fs-1 fw-bold text-primary">2</span>
+                    </div>
+                    <h4 class="mt-3">Visualisez l'analyse</h4>
+                    <p class="fs-5">Consultez les graphiques et statistiques générés</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-light p-3 rounded-circle d-inline-flex justify-content-center align-items-center" style="width: 100px; height: 100px;">
+                        <span class="fs-1 fw-bold text-primary">3</span>
+                    </div>
+                    <h4 class="mt-3">Recevez des conseils</h4>
+                    <p class="fs-5">Obtenez des recommandations pour économiser l'énergie</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aide et fonctionnalités -->
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4">
+            <div class="help-card">
+                <h3><i class="fas fa-hand-point-up me-2"></i> Fonctionnalités</h3>
+                <ul class="fs-5">
+                    <li class="mb-2">Analyse de votre consommation d'énergie</li>
+                    <li class="mb-2">Graphiques interactifs faciles à comprendre</li>
+                    <li class="mb-2">Détection des pics de consommation</li>
+                    <li class="mb-2">Conseils personnalisés pour économiser</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="help-card">
+                <h3><i class="fas fa-info-circle me-2"></i> Besoin d'aide ?</h3>
+                <p class="fs-5 mb-3">Vous avez des difficultés à utiliser l'application ?</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="alert('Un conseiller vous rappellera dans les plus brefs délais.')">
+                        <i class="fas fa-phone me-2"></i> Demander un appel d'aide
+                    </button>
+                    <a href="{{ url_for('example') }}" class="btn btn-outline-success">
+                        <i class="fas fa-play-circle me-2"></i> Voir la démonstration
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contrôles d'accessibilité -->
+    <div class="d-flex justify-content-center mt-4">
+        <button onclick="decreaseFontSize()" class="btn btn-outline-secondary mx-2">
+            <i class="fas fa-font"></i> <i class="fas fa-minus"></i> Réduire le texte
+        </button>
+        <button onclick="increaseFontSize()" class="btn btn-outline-secondary mx-2">
+            <i class="fas fa-font"></i> <i class="fas fa-plus"></i> Agrandir le texte
+        </button>
+    </div>
+</div>
+{% endblock %}

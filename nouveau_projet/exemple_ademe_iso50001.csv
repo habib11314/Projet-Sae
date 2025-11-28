@@ -1,0 +1,7 @@
+Indicateur_Energetique,Type_Energie,Consommation_kWh,Objectif_kWh,Performance_Pourcent,Periode,Site,Responsable_Energie
+Ratio_kWh_par_m2,Electricite,125000,115000,108.7,2024-T1,Batiment_Principal,Jean_Dupont
+Intensite_Carbone_kgCO2_kWh,Electricite,125000,115000,0.058,2024-T1,Batiment_Principal,Jean_Dupont
+Efficacite_Eclairage_W_m2,Electricite,15000,12000,125.0,2024-T1,Batiment_Principal,Jean_Dupont
+Ratio_kWh_par_employe,Electricite,125000,115000,4250,2024-T1,Batiment_Principal,Jean_Dupont
+Conso_Chauffage_kWh,Gaz,85000,80000,106.3,2024-T1,Batiment_Principal,Jean_Dupont
+Performance_Globale,Mixte,210000,195000,107.7,2024-T1,Batiment_Principal,Jean_Dupont

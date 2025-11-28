@@ -1,0 +1,167 @@
+{% extends 'layout.html' %}
+
+{% block title %}Analyser vos données - StatEnergie{% endblock %}
+
+{% block extra_css %}
+<!-- Les styles pour la zone d'upload sont maintenant dans le fichier CSS principal -->
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="content-section">
+            <h1 class="section-title text-center">Analyser vos données énergétiques</h1>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="upload-section">
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bold mb-3">
+                                <i class="fas fa-upload"></i> Import de données
+                            </h2>
+                            <p class="lead text-muted">
+                                Importez vos données de consommation énergétique pour une analyse complète
+                            </p>
+                        </div>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4 class="mb-3">Glissez-déposez votre fichier ici</h4>
+                    <p class="text-muted mb-4">ou cliquez pour sélectionner un fichier</p>
+                    <input type="file" name="file" class="file-input" id="fileInput" accept=".csv,.xlsx,.json,.pdf" required>
+                    <button type="button" class="btn upload-btn" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open"></i> Sélectionner un fichier
+                    </button>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            Formats acceptés: CSV, Excel (.xlsx), JSON, PDF (factures) - Taille max: 16MB
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success btn-lg analyze-btn" id="analyzeBtn">
+                        <i class="fas fa-chart-line"></i> Analyser les données
+                    </button>
+                </div>
+            </form>
+
+            <div class="format-info">
+                <h5><i class="fas fa-table"></i> Format des données attendu</h5>
+                <p class="mb-2">Votre fichier doit contenir au minimum deux colonnes :</p>
+                <ul class="mb-0">
+                    <li><strong>Date</strong> : Date de la mesure (format: YYYY-MM-DD ou DD/MM/YYYY)</li>
+                    <li><strong>Consommation</strong> : Valeur de consommation en kWh</li>
+                </ul>
+                <p class="mt-2 mb-0">
+                    <small class="text-muted">
+                        <i class="fas fa-lightbulb"></i> 
+                        Les colonnes peuvent être nommées: date/Date, consumption/Consommation/kWh
+                    </small>
+                </p>
+            </div>
+        </div>
+
+        <div class="sample-data-section">
+            <div class="text-center">
+                <h3 class="mb-3">
+                    <i class="fas fa-flask"></i> Pas de données ? Essayez notre démo !
+                </h3>
+                <p class="mb-4">
+                    Découvrez les capacités de StatEnergie avec des données d'exemple
+                </p>
+                <button class="btn btn-outline-light btn-lg" onclick="loadSampleData()">
+                    <i class="fas fa-play"></i> Charger les données d'exemple
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Gestion du drag & drop
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                showFileName(files[0].name);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                showFileName(e.target.files[0].name);
+            }
+        });
+
+        function showFileName(fileName) {
+            const uploadIcon = document.querySelector('.upload-icon i');
+            const uploadTitle = document.querySelector('.upload-zone h4');
+            
+            uploadIcon.className = 'fas fa-file-alt';
+            uploadTitle.textContent = fileName;
+            analyzeBtn.style.display = 'inline-block';
+        }
+
+        async function loadSampleData() {
+            try {
+                const response = await fetch('/api/sample_data');
+                const data = await response.json();
+                
+                // Créer un fichier CSV à partir des données d'exemple
+                const csvContent = 'date,consumption\n' + 
+                    data.dates.map((date, index) => `${date},${data.consumption[index]}`).join('\n');
+                
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const file = new File([blob], 'sample_data.csv', { type: 'text/csv' });
+                
+                // Créer un FormData et l'envoyer
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const uploadResponse = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (uploadResponse.ok) {
+                    window.location.href = '/dashboard';
+                } else {
+                    alert('Erreur lors du chargement des données d\'exemple');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors du chargement des données d\'exemple');
+            }
+        }
+    </script>
+{% endblock %}

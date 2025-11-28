@@ -1,0 +1,170 @@
+{% extends 'layout.html' %}
+
+{% block title %}Guide d'extraction des factures PDF - ÉnergiePulse{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="content-section">
+        <h1 class="section-title text-center">Guide de dépannage pour l'analyse de factures PDF</h1>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Ce guide vous aide à résoudre les problèmes d'extraction de données depuis vos factures d'énergie au format PDF.
+                </div>
+                
+                <div class="card bg-dark mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-question-circle"></i> Pourquoi l'extraction échoue-t-elle ?</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>L'extraction de données depuis des factures PDF peut échouer pour plusieurs raisons :</p>
+                        <ul>
+                            <li><strong>PDF protégés</strong> : Le PDF peut contenir des restrictions qui empêchent l'extraction de texte</li>
+                            <li><strong>PDF scannés</strong> : Les factures numérisées contiennent des images et non du texte extractible</li>
+                            <li><strong>Mise en page complexe</strong> : Tableaux, colonnes multiples et graphiques complexes</li>
+                            <li><strong>Texte invisible</strong> : Certains PDF utilisent des techniques de mise en page qui rendent le texte difficile à extraire</li>
+                            <li><strong>Formats propriétaires</strong> : Chaque fournisseur d'énergie a son propre format de facture</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card bg-dark mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-tools"></i> Solutions pas à pas</h4>
+                    </div>
+                    <div class="card-body">
+                        <ol>
+                            <li class="mb-3">
+                                <strong>Vérifiez le type de PDF</strong>
+                                <p>Assurez-vous que votre facture est un PDF natif et non une image numérisée. Pour cela :</p>
+                                <ul>
+                                    <li>Essayez de sélectionner et copier du texte dans le PDF</li>
+                                    <li>Si vous ne pouvez pas sélectionner le texte, c'est probablement une image</li>
+                                </ul>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Téléchargez des factures électroniques</strong>
+                                <p>Si possible, utilisez des factures téléchargées directement depuis votre espace client :</p>
+                                <ul>
+                                    <li>Connectez-vous à l'espace client de votre fournisseur</li>
+                                    <li>Téléchargez votre facture au format PDF</li>
+                                    <li>Évitez les factures scannées ou reçues par courrier puis numérisées</li>
+                                </ul>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Utilisez le mode d'extraction adapté</strong>
+                                <p>Essayez les différents modes d'extraction :</p>
+                                <ul>
+                                    <li><strong>Mode standard</strong> : Convient à la plupart des factures électroniques</li>
+                                    <li><strong>Mode agressif</strong> : Utilise plus de patterns et techniques d'extraction</li>
+                                    <li><strong>Mode spécifique</strong> : Optimisé pour votre fournisseur d'énergie</li>
+                                </ul>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Activez l'extraction de tableaux</strong>
+                                <p>De nombreuses données de consommation sont présentées sous forme de tableaux :</p>
+                                <ul>
+                                    <li>Dans les options avancées, activez "Extraire les tableaux"</li>
+                                    <li>Cette option améliore considérablement la détection des données de consommation</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <strong>Consultez le texte extrait en mode diagnostic</strong>
+                                <p>Si l'extraction échoue toujours :</p>
+                                <ul>
+                                    <li>Activez le "Mode diagnostic" dans les options avancées</li>
+                                    <li>Analysez le texte extrait pour comprendre ce qui est détecté</li>
+                                    <li>Vérifiez si le texte contient bien les informations recherchées</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="card bg-dark mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-lightbulb"></i> Conseils par fournisseur</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="providerTipsAccordion">
+                            <div class="accordion-item bg-dark">
+                                <h2 class="accordion-header" id="headingEDF">
+                                    <button class="accordion-button collapsed bg-dark text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEDF">
+                                        <img src="https://www.edf.fr/sites/all/themes/custom/edf/logo.svg" alt="EDF" height="20" class="me-2"> EDF
+                                    </button>
+                                </h2>
+                                <div id="collapseEDF" class="accordion-collapse collapse" data-bs-parent="#providerTipsAccordion">
+                                    <div class="accordion-body">
+                                        <ul>
+                                            <li>Les factures EDF récentes (depuis 2023) sont mieux prises en charge</li>
+                                            <li>La consommation se trouve généralement dans la section "Détail de votre consommation"</li>
+                                            <li>Sélectionnez "EDF" comme fournisseur spécifique dans les options avancées</li>
+                                            <li>Les factures EDF contiennent souvent un numéro PDL (Point De Livraison) qui est détecté comme numéro de compteur</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item bg-dark">
+                                <h2 class="accordion-header" id="headingENGIE">
+                                    <button class="accordion-button collapsed bg-dark text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseENGIE">
+                                        <img src="https://www.engie.com/sites/default/files/assets/images/2019-11/logo_engie.png" alt="ENGIE" height="20" class="me-2"> ENGIE
+                                    </button>
+                                </h2>
+                                <div id="collapseENGIE" class="accordion-collapse collapse" data-bs-parent="#providerTipsAccordion">
+                                    <div class="accordion-body">
+                                        <ul>
+                                            <li>Pour le gaz, recherchez le PCE (Point de Comptage et d'Estimation) comme référence de compteur</li>
+                                            <li>Pour l'électricité, c'est le PDL qui sert de référence</li>
+                                            <li>Utilisez le mode d'extraction agressif pour ENGIE</li>
+                                            <li>Activez l'extraction de tableaux pour de meilleurs résultats</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item bg-dark">
+                                <h2 class="accordion-header" id="headingTotalEnergies">
+                                    <button class="accordion-button collapsed bg-dark text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTotalEnergies">
+                                        <img src="https://totalenergies.com/themes/custom/total_theme/logo.svg" alt="TotalEnergies" height="20" class="me-2"> TotalEnergies
+                                    </button>
+                                </h2>
+                                <div id="collapseTotalEnergies" class="accordion-collapse collapse" data-bs-parent="#providerTipsAccordion">
+                                    <div class="accordion-body">
+                                        <ul>
+                                            <li>Les factures TotalEnergies ont généralement une meilleure extraction en mode standard</li>
+                                            <li>La consommation est souvent présentée clairement dans une section dédiée</li>
+                                            <li>Attention aux anciennes factures "Total Direct Energie" qui peuvent avoir un format différent</li>
+                                            <li>Sélectionnez spécifiquement "TotalEnergies" dans les options avancées</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-dark mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Limites actuelles</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>Notre système d'extraction a quelques limitations :</p>
+                        <ul>
+                            <li><strong>PDF scannés</strong> : Ne sont pas pris en charge actuellement (nécessiteraient une technologie OCR)</li>
+                            <li><strong>PDF protégés</strong> : L'extraction peut échouer si le PDF contient des restrictions de sécurité</li>
+                            <li><strong>Formats très spécifiques</strong> : Certaines mises en page très particulières peuvent ne pas être correctement traitées</li>
+                            <li><strong>Factures anciennes</strong> : Les factures de plus de 3 ans peuvent utiliser des formats obsolètes moins bien pris en charge</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('pdf_analysis') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Retour à l'analyse de factures
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

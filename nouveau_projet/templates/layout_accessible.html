@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StatEnergie - Analyse Énergétique Simplifiée{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Styles de base plus accessibles */
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #4285f4;
+            --success-color: #0f9d58;
+            --warning-color: #f4b400;
+            --danger-color: #db4437;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --text-color: #212529;
+            --text-light: #f8f9fa;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f5f7fa;
+            font-size: 18px; /* Taille de police plus grande par défaut */
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.2rem; /* Plus grand pour meilleure lisibilité */
+        }
+
+        h2 {
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        /* Navigation améliorée */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+
+        .navbar .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            background-color: var(--primary-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+        }
+
+        .logo-text span {
+            color: var(--primary-color);
+        }
+
+        /* Style de navigation plus grand et plus lisible */
+        .navbar-nav .nav-link {
+            font-size: 1.2rem;
+            padding: 0.8rem 1.5rem;
+            margin: 0 0.2rem;
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Conteneur principal */
+        .container {
+            max-width: 1200px;
+        }
+
+        .content-section {
+            background-color: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        /* Messages flash */
+        .alert {
+            font-size: 1.1rem;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 5px solid;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-left-color: var(--success-color);
+            color: #155724;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left-color: var(--warning-color);
+            color: #856404;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-left-color: var(--danger-color);
+            color: #721c24;
+        }
+
+        /* Boutons plus grands et plus visibles */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 0.5rem 0;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover, 
+        .btn-primary:focus {
+            background-color: #0d5bba; /* Teinte plus foncée pour le hover */
+            border-color: #0d5bba;
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.3rem;
+        }
+
+        /* Formulaires plus lisibles */
+        .form-control, 
+        .form-select {
+            font-size: 1.1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid #ced4da;
+        }
+
+        .form-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .form-group, 
+        .mb-3 {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Cartes et sections */
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            border: none;
+        }
+
+        .card-header {
+            background-color: var(--light-color);
+            padding: 1.25rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Boutons d'aide */
+        .help-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Astuces et conseils */
+        .tip-card {
+            background-color: #e8f4fd;
+            border-left: 5px solid var(--primary-color);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .tip-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Pied de page */
+        footer {
+            margin-top: 3rem;
+            padding: 2rem 0;
+            text-align: center;
+            background-color: white;
+            border-top: 1px solid #eee;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <div class="logo-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="logo-text">Stat<span>Energie</span></div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" 
+                           href="{{ url_for('index') }}">
+                           <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('manual_bill_entry') %}active{% endif %}" 
+                           href="{{ url_for('manual_bill_entry') }}">
+                           <i class="fas fa-pencil-alt"></i> Saisie
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('example') %}active{% endif %}" 
+                           href="{{ url_for('example') }}">
+                           <i class="fas fa-lightbulb"></i> Exemple
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('sample_data') }}">
+                            <i class="fas fa-chart-bar"></i> Test
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'error' %}
+                        {% set category = 'danger' %}
+                    {% endif %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-circle{% elif category == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Page Content -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>© 2025 StatEnergie - Solution simplifiée d'analyse énergétique</p>
+            <p><i class="fas fa-question-circle"></i> Besoin d'aide ? <a href="#" onclick="alert('Un conseiller vous rappellera dans les plus brefs délais.')">Cliquez ici</a></p>
+        </div>
+    </footer>
+
+    <!-- Scripts JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Amélioration de l'accessibilité
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ajouter des tooltips pour les éléments d'aide
+            const helpButtons = document.querySelectorAll('.help-btn');
+            helpButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    alert(this.getAttribute('data-help'));
+                });
+            });
+            
+            // Fonction pour augmenter la taille de la police
+            window.increaseFontSize = function() {
+                document.body.style.fontSize = (parseFloat(getComputedStyle(document.body).fontSize) + 2) + 'px';
+            };
+            
+            // Fonction pour diminuer la taille de la police
+            window.decreaseFontSize = function() {
+                document.body.style.fontSize = (parseFloat(getComputedStyle(document.body).fontSize) - 2) + 'px';
+            };
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

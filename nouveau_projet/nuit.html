@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi Lyreco</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: url('file:///C:/Users/PC/nuit-info/w03142-small.webp') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: white;
+      position: relative;
+    }
+
+    h1 {
+      position: absolute;
+      top: 10px;
+      text-align: center;
+      width: 100%;
+      font-size: 24px;
+      z-index: 10;
+    }
+
+    #logo {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      z-index: 20; /* Mettre le logo au-dessus */
+      transition: opacity 0.5s ease-out, visibility 0s 0.5s;
+    }
+
+    #logo img {
+      width: 100%;
+      height: 100%;
+      border: none; /* Pas de bordure */
+      border-radius: 0; /* Suppression de l'effet de cercle */
+      box-shadow: none; /* Suppression de l'ombre */
+    }
+
+    .congratulations {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 36px;
+      color: #FFD700; /* Doré pour la félicitation */
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      z-index: 30;
+      display: none; /* Masquer par défaut */
+      animation: showMessage 2s ease-out forwards; /* Animation d'affichage */
+    }
+
+    @keyframes showMessage {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    @keyframes textGlow {
+      0%, 100% {
+        text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FF4500;
+      }
+      50% {
+        text-shadow: 0 0 15px #FF6347, 0 0 25px #FF6347, 0 0 35px #FF4500;
+      }
+    }
+
+    .congratulations.animate {
+      display: block;
+      animation: showMessage 2s ease-out forwards, textGlow 3s infinite;
+    }
+  </style>
+</head>
+<body>
+  <h1>Attrape le logo !</h1>
+  <div id="logo">
+    <img src="file:///C:/Users/PC/nuit-info/Nemo.webp" alt="Logo Lyreco" />
+  </div>
+
+  <div class="congratulations" id="congratulations-message">
+    🎉 Congratulations! Vous avez réussi l'épreuve de Lyreco 🎉
+  </div>
+
+  <script>
+    // Récupérer les éléments
+    const logo = document.getElementById('logo');
+    const congratsMessage = document.getElementById('congratulations-message');
+
+    // Fonction pour générer des positions aléatoires
+    function generateRandomPosition() {
+      const x = Math.random() * (window.innerWidth - 50); // Largeur de la fenêtre moins la taille du logo
+      const y = Math.random() * (window.innerHeight - 50); // Hauteur de la fenêtre moins la taille du logo
+      return { x, y };
+    }
+
+    // Appliquer des positions aléatoires au logo
+    function moveLogo() {
+      const { x, y } = generateRandomPosition();
+      logo.style.left = `${x}px`;
+      logo.style.top = `${y}px`;
+    }
+
+    // Déplacement constant toutes les 1 seconde
+    const logoInterval = setInterval(moveLogo, 500);
+
+    // Ajouter l'animation lorsqu'on clique sur le logo
+    logo.addEventListener('click', () => {
+      logo.style.opacity = '0'; // Le logo devient transparent
+      logo.style.visibility = 'hidden'; // Le logo est masqué
+
+      // Afficher le message de félicitations avec animation
+      congratsMessage.classList.add('animate');
+
+      // Arrêter le mouvement du logo
+      clearInterval(logoInterval);
+    });
+
+    // Positionner le logo au chargement
+    moveLogo();
+  </script>
+</body>
+</html>

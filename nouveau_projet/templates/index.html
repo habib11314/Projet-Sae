@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+
+{% block title %}ÉnergiePulse - Solution d'Analyse Énergétique{% endblock %}
+
+{% block content %}
+<div class="container">
+        
+    <!-- Hero Section -->
+    <div class="hero-section text-center">
+        <h1 class="hero-title" style="color: white;">ÉnergiePulse</h1>
+        <p class="hero-subtitle" style="color: white; margin: 0 auto 2rem auto; max-width: 800px;">Optimisez votre consommation énergétique grâce à l'analyse intelligente</p>
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <a href="{{ url_for('upload') }}" class="btn btn-light btn-lg px-5 py-3 shadow cta-button">
+                    <i class="fas fa-bolt me-2"></i> Analyser vos données
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="row">
+            <div class="col-md-3 stat-item">
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Précision d'analyse</div>
+            </div>
+            <div class="col-md-3 stat-item">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Types d'analyses</div>
+            </div>
+            <div class="col-md-3 stat-item">
+                <div class="stat-number">24h</div>
+                <div class="stat-label">Surveillance continue</div>
+            </div>
+            <div class="col-md-3 stat-item">
+                <div class="stat-number">30%</div>
+                <div class="stat-label">Économies moyennes</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="features-section" id="features">
+        <h2 class="section-title">Nos fonctionnalités</h2>
+        <div class="row mt-4">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Analyse détaillée</h3>
+                    <p class="feature-description">Visualisez et analysez votre consommation énergétique avec des graphiques interactifs.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="feature-title">Détection d'anomalies</h3>
+                    <p class="feature-description">Identifiez automatiquement les pics et anomalies dans votre consommation.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3 class="feature-title">Rapports PDF</h3>
+                    <p class="feature-description">Générez des rapports professionnels à partager avec vos clients.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    <!-- Call to Action Section -->
+    <div class="cta-section">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="cta-title">Prêt à optimiser votre consommation énergétique?</h2>
+                <p class="cta-text">Commencez dès maintenant l'analyse de vos données pour découvrir des opportunités d'économies.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="{{ url_for('formats') }}" class="btn btn-outline-light me-2">Types de données acceptés</a>
+                <a href="{{ url_for('upload') }}" class="btn btn-light">Commencer l'analyse</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
